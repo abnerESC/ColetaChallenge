@@ -38,30 +38,33 @@ function scene:create( event )
 		if i<7 then
 			--a fase terá 6 bananas
 			customVectorOfImage[i] = "img/objects/banana.png"
-			print(customVectorOfImage[i])
 		elseif i >= 7 and i < 15 then
 			--a fase terá 9 cervejas
 			customVectorOfImage[i] = "img/objects/beer.png"
-			print(customVectorOfImage[i])
 		else
 			--colocando de forma aleatória
 			customVectorOfImage[i] = randomVectorOfImage[math.random(1,4)]
-			print(customVectorOfImage[i])
 		end
 	end
 	
 	--criando o chão
-	local wall = display.newImageRect( "img/screenComponents/wall_botton.png", screenW, 82 )
-	wall.anchorX = 0
-	wall.anchorY = 1
-	wall.x, wall.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, 82 )
+	floor.anchorX = 0
+	floor.anchorY = 1
+	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+
+	--criando a parede esquerda e direita
+	local wallLeft = display.newRect( 0,screenH/2, 1, screenH )
+	physics.addBody( wallLeft, "static" )
+	local wallRight = display.newRect( screenW, screenH/2, 1, screenH )
+	physics.addBody( wallRight, "static" )
 	
-	local wallShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
-	physics.addBody( wall, "static", { friction=0.3, shape=wallShape } )
+	local floorShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
 	local garbage_green = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
-	garbage_green.x, garbage_green.y = display.contentCenterX, screenH - wall.height - 90
+	garbage_green.x, garbage_green.y = display.contentCenterX, screenH - floor.height - 90
 	physics.addBody( garbage_green, "static")
 
 	--função que permite mover a lata de lixo pela tela
@@ -86,22 +89,31 @@ function scene:create( event )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
-	sceneGroup:insert( wall)
+	sceneGroup:insert( floor)
 
-	local function createObjectsWithDelay( iteration )
-		if iteration < 100 then
-			local object = display.newImageRect( customVectorOfImage[iteration], 45, 45 )
-			object.x, object.y = 0, 0
-			physics.addBody( object, { density=1.0, friction=0.3, bounce=0.3 } )
-			sceneGroup:insert( object )
+	--inserindo objetos na tela com base no tempo
+	local time = 1000
+	local iterations = 0;
+	local currentTimer = nil;
 
-			timer.performWithDelay(1000, createObjectsWithDelay(iteration+1))
-		end
+	local function createObjectsWithDelay()
+      	iterations = iterations + 1
+
+      	local object = display.newImageRect( customVectorOfImage[iterations], 45, 45 )
+      	--os objetos estão sendo inseridos em lugares aleatórios da tela
+		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -100
+		--aumentando a gravidade gradativamente
+		physics.setGravity(0,9.8 + iterations*0.2)
+		physics.addBody( object, { density=1.0, friction=0.3, bounce=0.3 } )
+		sceneGroup:insert( object )
+
+      	if (iterations < 100) then
+           currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
+      	end
 	end
 
-	timer.performWithDelay(5000, print("teste"))
+	currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 
-	createObjectsWithDelay(1)
 	sceneGroup:insert( garbage_green )
 end
 
