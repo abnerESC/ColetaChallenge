@@ -30,18 +30,18 @@ function scene:create( event )
 	background.anchorY = 0
 	background:setFillColor( .5 )
 
-	randomVectorOfImage = {"img/champagne.png","img/coffee-cup.png","img/cutlery.png", "img/plastic-cup.png"}
+	randomVectorOfImage = {"img/objects/champagne.png","img/objects/coffee-cup.png","img/objects/cutlery.png", "img/objects/plastic-cup.png"}
 	customVectorOfImage = {}
 
 	--criando um vetor com as imagens (path das imagens) que vão aparecer na tela
 	for i=1,100 do
 		if i<7 then
 			--a fase terá 6 bananas
-			customVectorOfImage[i] = "img/banana.png"
+			customVectorOfImage[i] = "img/objects/banana.png"
 			print(customVectorOfImage[i])
 		elseif i >= 7 and i < 15 then
 			--a fase terá 9 cervejas
-			customVectorOfImage[i] = "img/beer.png"
+			customVectorOfImage[i] = "img/objects/beer.png"
 			print(customVectorOfImage[i])
 		else
 			--colocando de forma aleatória
@@ -51,7 +51,7 @@ function scene:create( event )
 	end
 	
 	--criando o chão
-	local wall = display.newImageRect( "img/wall_botton.png", screenW, 82 )
+	local wall = display.newImageRect( "img/screenComponents/wall_botton.png", screenW, 82 )
 	wall.anchorX = 0
 	wall.anchorY = 1
 	wall.x, wall.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
@@ -60,7 +60,7 @@ function scene:create( event )
 	physics.addBody( wall, "static", { friction=0.3, shape=wallShape } )
 
 	--criando a lata de lixo
-	local garbage_green = display.newImageRect( "img/garbage.png", 90, 90 )
+	local garbage_green = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
 	garbage_green.x, garbage_green.y = display.contentCenterX, screenH - wall.height - 90
 	physics.addBody( garbage_green, "static")
 
