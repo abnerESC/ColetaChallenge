@@ -23,6 +23,7 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	physics.start()
+	physics.setDrawMode("hybrid")
 	physics.pause()
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
@@ -63,12 +64,44 @@ function scene:create( event )
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
-	local garbage_green = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
-	garbage_green.x, garbage_green.y = display.contentCenterX, screenH - floor.height - 90
-	physics.addBody( garbage_green, "static")
+	local garbage_default = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
+	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
+
+	--criando formas que vão ser adicionadas a lata de lixo
+	--e vão dar a sensação de que os objetos caem dentro dela
+	local shapeBottonGarbage = { 45,40,45,45,-45,45,-45,40}
+	local shapeRightGarbage = {45,-45,45,40,40,40,40,-45}
+	local shapeLeftGarbage = {-40,-45,-40,40,-45,40,-45,-45}
+
+	physics.addBody( garbage_default, "static", { shape = shapeBottonGarbage }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage })
+
+	local function onLocalCollision( self, event )
+
+		if ( event.phase == "began" ) then
+        	print( "position: " .. event.x .. "," .. event.y )
+
+		elseif ( event.phase == "ended" ) then
+		    print( ": collision ended with " )
+		end
+	end
+
+	garbage_default.collision = onLocalCollision
+	garbage_default:addEventListener("collision")
+
+	local function onGlobalCollision( event )
+
+	    if ( event.phase == "began" ) then
+	        print( "began: " )
+
+	    elseif ( event.phase == "ended" ) then
+	        print( "ended: " )
+	    end
+	end
+
+	--Runtime:addEventListener( "collision", onGlobalCollision )
 
 	--função que permite mover a lata de lixo pela tela
-	function garbage_green:touch( event )
+	function garbage_default:touch( event )
 	    if event.phase == "began" then
 		
 	        self.markX = self.x
@@ -85,7 +118,7 @@ function scene:create( event )
 	    return true
 	end
 
-	garbage_green:addEventListener( "touch", garbage_green )
+	garbage_default:addEventListener( "touch", garbage_default )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
@@ -107,14 +140,14 @@ function scene:create( event )
 		physics.addBody( object, { density=1.0, friction=0.3, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 100) then
+      	if (iterations < 1) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
 
 	currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 
-	sceneGroup:insert( garbage_green )
+	sceneGroup:insert( garbage_default )
 end
 
 function scene:show( event )
