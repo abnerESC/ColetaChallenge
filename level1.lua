@@ -23,7 +23,6 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	physics.start()
-	physics.setDrawMode("hybrid")
 	physics.pause()
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
@@ -31,17 +30,20 @@ function scene:create( event )
 	background.anchorY = 0
 	background:setFillColor( .5 )
 
-	randomVectorOfImage = {"img/objects/champagne.png","img/objects/coffee-cup.png","img/objects/cutlery.png", "img/objects/plastic-cup.png"}
+	randomVectorOfImage = {"champagne","coffee-cup","cutlery", "plastic-cup"}
 	customVectorOfImage = {}
+
+	--criando o texto que representará a pontuação
+	local potuacao = display.newEmbossedText( "Pontos", screenW/2, 0, 95, 95, native.systemFont, 40 )
 
 	--criando um vetor com as imagens (path das imagens) que vão aparecer na tela
 	for i=1,100 do
 		if i<7 then
 			--a fase terá 6 bananas
-			customVectorOfImage[i] = "img/objects/banana.png"
+			customVectorOfImage[i] = "banana"
 		elseif i >= 7 and i < 15 then
 			--a fase terá 9 cervejas
-			customVectorOfImage[i] = "img/objects/beer.png"
+			customVectorOfImage[i] = "beer"
 		else
 			--colocando de forma aleatória
 			customVectorOfImage[i] = randomVectorOfImage[math.random(1,4)]
@@ -50,6 +52,7 @@ function scene:create( event )
 	
 	--criando o chão
 	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, 82 )
+	floor.name = "floor"
 	floor.anchorX = 0
 	floor.anchorY = 1
 	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
@@ -75,15 +78,28 @@ function scene:create( event )
 
 	physics.addBody( garbage_default, "static", { shape = shapeBottonGarbage }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage })
 
+	local score = 0;
+
 	local function onLocalCollision( self, event )
 
 		if ( event.phase == "began" ) then
-        	print( "position: " .. event.x .. "," .. event.y )
-
+			if ( event.target.name == "floor" ) then
+				score = score - 10
+    		else
+	        	if ( event.other.name == "banana" or event.other.name == "beer" ) then
+	        		score = score + 2
+	    		else
+	    			score = score + 1
+	    		end
+			end
+    		potuacao:setText(score)
+    		event.other:removeSelf()
 		elseif ( event.phase == "ended" ) then
-		    print( ": collision ended with " )
 		end
 	end
+
+	floor.collision = onLocalCollision
+	floor:addEventListener("collision")
 
 	garbage_default.collision = onLocalCollision
 	garbage_default:addEventListener("collision")
@@ -102,6 +118,7 @@ function scene:create( event )
 
 	--função que permite mover a lata de lixo pela tela
 	function garbage_default:touch( event )
+
 	    if event.phase == "began" then
 		
 	        self.markX = self.x
@@ -118,7 +135,56 @@ function scene:create( event )
 	    return true
 	end
 
+	i = 0
+
+	local function myTapListener( event )
+
+		event.target:removeSelf()
+
+		i = i + 1
+
+		if ( i == 1) then
+			object = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
+		elseif ( i == 2 ) then
+			object = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
+		elseif ( i == 3 ) then
+			object = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
+		elseif ( i == 4 ) then
+			object = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
+			i = 0
+		end
+		object.x, object.y = event.target.x, event.target.y
+
+		function object:touch( event )
+
+	    if event.phase == "began" then
+		
+	        self.markX = self.x
+	        self.markY = self.y
+		
+	    elseif event.phase == "moved" then
+		
+	        local x = (event.x - event.xStart) + self.markX
+	        local y = (event.y - event.yStart) + self.markY
+	        
+	        self.x, self.y = x, y
+	    end
+	    
+	    return true
+	end
+
+		object:addEventListener( "touch", object )
+		object:addEventListener( "tap", myTapListener )
+		object.collision = onLocalCollision
+		object:addEventListener("collision")
+
+		physics.addBody( object, "static", { shape = shapeBottonGarbage }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage })
+	    sceneGroup:insert( object )
+	    return true
+	end
+
 	garbage_default:addEventListener( "touch", garbage_default )
+	garbage_default:addEventListener( "tap", myTapListener )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
@@ -132,15 +198,20 @@ function scene:create( event )
 	local function createObjectsWithDelay()
       	iterations = iterations + 1
 
-      	local object = display.newImageRect( customVectorOfImage[iterations], 45, 45 )
+      	image = customVectorOfImage[iterations]
+
+      	imagePath = "img/objects/" .. image .. ".png"
+
+      	local object = display.newImageRect( imagePath, 45, 45 )
+      	object.name = image
       	--os objetos estão sendo inseridos em lugares aleatórios da tela
 		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -100
 		--aumentando a gravidade gradativamente
 		physics.setGravity(0,9.8 + iterations*0.2)
-		physics.addBody( object, { density=1.0, friction=0.3, bounce=0.3 } )
+		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 1) then
+      	if (iterations < 15) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
