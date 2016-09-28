@@ -15,7 +15,6 @@ local widget = require "widget"
 
 --------------------------------------------
 
--- forward declarations and other locals
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
 
 function scene:create( event )
@@ -24,6 +23,7 @@ function scene:create( event )
 
 	physics.start()
 	physics.pause()
+	physics.setDrawMode( "hybrid" )
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
 	background.anchorX = 0 
@@ -34,7 +34,7 @@ function scene:create( event )
 	customVectorOfImage = {}
 
 	--criando o texto que representará a pontuação
-	local potuacao = display.newEmbossedText( "Pontos", screenW/2, 0, 95, 95, native.systemFont, 40 )
+	local potuacao = display.newEmbossedText( "0", screenW/2, 0, 95, 95, native.systemFont, 40 )
 
 	--criando um vetor com as imagens (path das imagens) que vão aparecer na tela
 	for i=1,100 do
@@ -67,16 +67,19 @@ function scene:create( event )
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
-	local garbage_default = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
+	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
+	garbage_default.name = "lata"
 
 	--criando formas que vão ser adicionadas a lata de lixo
 	--e vão dar a sensação de que os objetos caem dentro dela
-	local shapeBottonGarbage = { 45,40,45,45,-45,45,-45,40}
+	local shapeCollision = { 30,35,30,40,-30,40,-30,35}
+	
+	local shapeBottonGarbage = {45,40,45,45,-45,45,-45,40}
 	local shapeRightGarbage = {45,-45,45,40,40,40,40,-45}
 	local shapeLeftGarbage = {-40,-45,-40,40,-45,40,-45,-45}
 
-	physics.addBody( garbage_default, "static", { shape = shapeBottonGarbage }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage })
+	physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage})
 
 	local score = 0;
 
@@ -85,17 +88,24 @@ function scene:create( event )
 		if ( event.phase == "began" ) then
 			if ( event.target.name == "floor" ) then
 				score = score - 10
+				potuacao:setText(score)
     		else
-	        	if ( event.other.name == "banana" or event.other.name == "beer" ) then
-	        		score = score + 2
-	    		else
-	    			score = score + 1
-	    		end
+				if( event.selfElement == 1 ) then
+					if ( event.other.name == "banana" or event.other.name == "beer" ) then
+						score = score + 2
+					else
+						score = score + 1
+					end
+					potuacao:setText(score)
+					event.other:removeSelf()
+				end
 			end
-    		potuacao:setText(score)
-    		event.other:removeSelf()
 		elseif ( event.phase == "ended" ) then
 		end
+	end
+	
+	local function onGarbageCollision( self, event )
+		print( "" ..event.selfElement )
 	end
 
 	floor.collision = onLocalCollision
@@ -211,7 +221,7 @@ function scene:create( event )
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 15) then
+      	if (iterations < 1) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
