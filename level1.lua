@@ -148,53 +148,42 @@ function scene:create( event )
 	i = 0
 
 	local function myTapListener( event )
-
-		event.target:removeSelf()
+		x, y = garbage_default.x, garbage_default.y
+		garbage_default:removeSelf()
 
 		i = i + 1
 
 		if ( i == 1) then
-			object = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
+			garbage_default = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
 		elseif ( i == 2 ) then
-			object = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
+			garbage_default = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
 		elseif ( i == 3 ) then
-			object = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
+			garbage_default = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
 		elseif ( i == 4 ) then
-			object = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
+			garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
 			i = 0
 		end
-		object.x, object.y = event.target.x, event.target.y
+		garbage_default.x, garbage_default.y = x, y
+		
+		garbage_default.collision = onLocalCollision
+		garbage_default:addEventListener("collision")
 
-		function object:touch( event )
-
-	    if event.phase == "began" then
+		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
+	    sceneGroup:insert( garbage_default )
+	    return true
+	end
+	
+	function floor:touch( event )
 		
-	        self.markX = self.x
-	        self.markY = self.y
-		
-	    elseif event.phase == "moved" then
-		
-	        local x = (event.x - event.xStart) + self.markX
-	        local y = (event.y - event.yStart) + self.markY
+	    if event.phase == "moved" then
 	        
-	        self.x, self.y = x, y
+	        garbage_default.x = event.x
 	    end
-	    
-	    return true
+		return true
 	end
-
-		object:addEventListener( "touch", object )
-		object:addEventListener( "tap", myTapListener )
-		object.collision = onLocalCollision
-		object:addEventListener("collision")
-
-		physics.addBody( object, "static", { shape = shapeBottonGarbage }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage })
-	    sceneGroup:insert( object )
-	    return true
-	end
-
-	garbage_default:addEventListener( "touch", garbage_default )
-	garbage_default:addEventListener( "tap", myTapListener )
+	
+	floor:addEventListener( "touch", floor )
+	floor:addEventListener( "tap", myTapListener )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
@@ -221,7 +210,7 @@ function scene:create( event )
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 1) then
+      	if (iterations < 10) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
