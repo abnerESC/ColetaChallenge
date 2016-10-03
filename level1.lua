@@ -38,6 +38,7 @@ function scene:create( event )
 
 	--criando um vetor com as imagens (path das imagens) que vão aparecer na tela
 	for i=1,100 do
+
 		if i<7 then
 			--a fase terá 6 bananas
 			customVectorOfImage[i] = "banana"
@@ -67,7 +68,7 @@ function scene:create( event )
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
-	local garbage_default = display.newImageRect( "img/screenComponents/garbage.png", 90, 90 )
+	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
 
 	--criando formas que vão ser adicionadas a lata de lixo
@@ -211,7 +212,7 @@ function scene:create( event )
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 15) then
+      	if (iterations < 100) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
