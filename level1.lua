@@ -23,7 +23,6 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	physics.start()
-	physics.setDrawMode("hybrid")
 	physics.pause()
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
