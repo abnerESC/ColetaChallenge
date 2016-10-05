@@ -61,7 +61,7 @@ function scene:create( event )
 	end
 	
 	--criando o chão
-	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, 82 )
+	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.2 )
 	floor.name = "floor"
 	floor.anchorX = 0
 	floor.anchorY = 1
@@ -89,6 +89,8 @@ function scene:create( event )
 	local score = 0;
 
 	local function onLocalCollision( self, event )
+	
+		event.target:toFront()
 
 		if ( event.phase == "began" ) then
 			if ( event.target.name == "floor" ) then
@@ -182,6 +184,7 @@ function scene:create( event )
 		garbage_default.x, garbage_default.y = x, y
 		
 		garbage_default.collision = onLocalCollision
+		garbage_default:toFront()
 		garbage_default:addEventListener("collision")
 
 		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
@@ -235,6 +238,7 @@ function scene:create( event )
 
       	local object = display.newImageRect( imagePath, 45, 45 )
       	object.name = image
+		object:toBack()
 
       	if image == "writer" then
       		object.id = PAPEL
@@ -253,7 +257,7 @@ function scene:create( event )
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 0) then
+      	if (iterations < 15) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
