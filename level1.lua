@@ -25,7 +25,7 @@ function scene:create( event )
 
 	physics.start()
 	physics.pause()
-	physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "" )
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
 	background.anchorX = 0 
@@ -66,8 +66,60 @@ function scene:create( event )
 	floor.anchorX = 0
 	floor.anchorY = 1
 	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+
+	--variávei usáveis
+	local buttonWidth = floor.width/4
+	local buttonHeight = floor.height/2
+
+	--BOTÕES DE MUDANÇA DE COR DA LATA
+	local buttonChangeColor1 = widget.newButton({
+		defaultFile="img/buttons/oval.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight
+	})
+	buttonChangeColor1.x = floor.x + buttonWidth*0.5
+	buttonChangeColor1.y = floor.y - floor.height*0.75
+	buttonChangeColor1.id = METAL
+
+	local buttonChangeColor2 = widget.newButton({
+		defaultFile="img/buttons/oval.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight
+	})
+	buttonChangeColor2.x = floor.x + buttonWidth*1.5
+	buttonChangeColor2.y = floor.y - floor.height*0.75
+	buttonChangeColor2.id = PLASTICO
+
+	local buttonChangeColor3 = widget.newButton({
+		defaultFile="img/buttons/oval.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight
+	})
+	buttonChangeColor3.x = floor.x + buttonWidth*2.5
+	buttonChangeColor3.y = floor.y - floor.height*0.75
+	buttonChangeColor3.id = PAPEL
+
+	local buttonChangeColor4 = widget.newButton({
+		defaultFile="img/buttons/oval.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight
+	})
+	buttonChangeColor4.x = floor.x + buttonWidth*3.5
+	buttonChangeColor4.y = floor.y - floor.height*0.75
+	buttonChangeColor4.id = VIDRO
+
+	--ESCUTANDO CLIQUE DOS BOTÕES DE MUDANÇA DE COR DA LATA
+	local function handleButtonEvent( event )
+	        print( "..............." )
+
+	    if ( "ended" == event.phase ) then
+	        print( "..............." )
+	    end
+
+	    return true
+	end
 	
-	local floorShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	local floorShape = {  -floor.width/2,-floor.height/2, floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,floor.height/2 }
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
@@ -218,7 +270,7 @@ function scene:create( event )
 	end
 	
 	floor:addEventListener( "touch", floor )
-	floor:addEventListener( "tap", myTapListener )
+	--floor:addEventListener( "tap", myTapListener )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
