@@ -19,13 +19,17 @@ local screenW, screenH, halfW = display.actualContentWidth, display.actualConten
 
 local VIDRO, PAPEL, METAL, PLASTICO = "vidro", "papel", "metal", "plastico"
 
+--OBJETIVO DA FASE
+local objetivo1 = { "banana", 4 }
+local objetivo2 = { "cerveja", 2 }
+
 function scene:create( event )
 
 	local sceneGroup = self.view
 
 	physics.start()
 	physics.pause()
-	physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "" )
 
 	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
 	background.anchorX = 0 
@@ -41,9 +45,6 @@ function scene:create( event )
 
 	randomVectorOfImage = {"champagne","coffee-cup","cutlery", "plastic-cup"}
 	customVectorOfImage = {}
-
-	--criando o texto que representará a pontuação
-	local potuacao = display.newEmbossedText( "0", screenW/2, 0, 95, 95, native.systemFont, 40 )
 
 	--criando um vetor com as imagens (path das imagens) que vão aparecer na tela
 	for i=1,100 do
@@ -66,23 +67,20 @@ function scene:create( event )
 	floor.anchorX = 0
 	floor.anchorY = 1
 	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
-	floor:toBack()
 	
-	local floorShape = { floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,-floor.height/2, -floor.width/2,floor.height/2 }
+	local floorShape = {  -floor.width/2,-floor.height/2, floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,floor.height/2 }
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
+
+	--criando o texto que representará a pontuação
+	local potuacao = display.newEmbossedText( "0", display.contentCenterX, 10, 40, 40, native.systemFont, 40 )
+	
+	--criando texto que representará os objetos a serem coletados
 
 	--criando a lata de lixo
 	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
-	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
+	garbage_default.x, garbage_default.y = display.contentCenterX, floor.y - floor.height - 45
 	garbage_default.name = "lata"
 	garbage_default.id = METAL
-	
-	--criando botões de mudança de cor
-	local button1 = display.newImageRect("img/screenComponents/recycle_yellow.png", floor.width/4,floor.height)
-	button1:setFillColor(255,0,0)
-	button1:toFront()
-	
-	print("x: "..button1.x .. ", y: "..button1.y)
 
 	--criando formas que vão ser adicionadas a lata de lixo
 	--e vão dar a sensação de que os objetos caem dentro dela
@@ -226,12 +224,13 @@ function scene:create( event )
 	end
 	
 	floor:addEventListener( "touch", floor )
-	floor:addEventListener( "tap", myTapListener )
+	--floor:addEventListener( "tap", myTapListener )
+	
+	--buttonChangeColor4:addEventListener( "tap", myTapListener )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
 	sceneGroup:insert( floor)
-	sceneGroup:insert( button1 )
 
 	--inserindo objetos na tela com base no tempo
 	local time = 1000
@@ -270,6 +269,88 @@ function scene:create( event )
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
+	--variávei usáveis
+	local buttonWidth = floor.width/4
+	local buttonHeight = floor.height/2
+
+	--ESCUTANDO CLIQUE DOS BOTÕES DE MUDANÇA DE COR DA LATA
+	local function handleButtonEvent( event )
+		x, y = garbage_default.x, garbage_default.y
+		garbage_default:removeSelf()
+		
+	    if ( "ended" == event.phase ) then
+	        if( event.target.id == VIDRO )then
+				print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
+				garbage_default.id = VIDRO
+			elseif ( event.target.id == METAL )then
+				print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
+				garbage_default.id = METAL
+			
+			elseif ( event.target.id == PAPEL )then
+				print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
+				garbage_default.id = PAPEL
+			
+			elseif ( event.target.id == PLASTICO )then
+				print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
+				garbage_default.id = PLASTICO
+			
+			end
+	    end
+		
+		garbage_default.x, garbage_default.y = x, y
+		
+		garbage_default.collision = onLocalCollision
+		garbage_default:toFront()
+		garbage_default:addEventListener("collision")
+
+		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
+	    sceneGroup:insert( garbage_default )
+	end
+
+	--BOTÕES DE MUDANÇA DE COR DA LATA
+	local buttonChangeColor1 = widget.newButton({
+		defaultFile="img/buttons/button-yellow-metal.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight,
+		onEvent = handleButtonEvent
+	})
+	buttonChangeColor1.x = floor.x + buttonWidth*0.5
+	buttonChangeColor1.y = floor.y - floor.height*0.75
+	buttonChangeColor1.id = METAL
+
+	local buttonChangeColor2 = widget.newButton({
+		defaultFile="img/buttons/button-red-plastico.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight,
+		onEvent = handleButtonEvent
+	})
+	buttonChangeColor2.x = floor.x + buttonWidth*1.5
+	buttonChangeColor2.y = floor.y - floor.height*0.75
+	buttonChangeColor2.id = PLASTICO
+
+	local buttonChangeColor3 = widget.newButton({
+		defaultFile="img/buttons/button-blue-papel.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight,
+		onEvent = handleButtonEvent
+	})
+	buttonChangeColor3.x = floor.x + buttonWidth*2.5
+	buttonChangeColor3.y = floor.y - floor.height*0.75
+	buttonChangeColor3.id = PAPEL
+
+	local buttonChangeColor4 = widget.newButton({
+		defaultFile="img/buttons/button-green-vidro.png",
+		overFile="img/buttons/oval-pressed.png",
+		width=buttonHeight, height=buttonHeight,
+		onEvent = handleButtonEvent
+	})
+	buttonChangeColor4.x = floor.x + buttonWidth*3.5
+	buttonChangeColor4.y = floor.y - floor.height*0.75
+	buttonChangeColor4.id = VIDRO
 
 	currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 
