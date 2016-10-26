@@ -66,8 +66,9 @@ function scene:create( event )
 	floor.anchorX = 0
 	floor.anchorY = 1
 	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+	floor:toBack()
 	
-	local floorShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
+	local floorShape = { floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,-floor.height/2, -floor.width/2,floor.height/2 }
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando a lata de lixo
@@ -75,6 +76,13 @@ function scene:create( event )
 	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
 	garbage_default.name = "lata"
 	garbage_default.id = METAL
+	
+	--criando botões de mudança de cor
+	local button1 = display.newImageRect("img/screenComponents/recycle_yellow.png", floor.width/4,floor.height)
+	button1:setFillColor(255,0,0)
+	button1:toFront()
+	
+	print("x: "..button1.x .. ", y: "..button1.y)
 
 	--criando formas que vão ser adicionadas a lata de lixo
 	--e vão dar a sensação de que os objetos caem dentro dela
@@ -98,10 +106,10 @@ function scene:create( event )
 				score = score - 1
 				potuacao:setText(score)
     		else
-    			print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
+    			--print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
-						print( "Bom trabalho!" )
+						--print( "Bom trabalho!" )
 						if ( event.other.name == "writer" or event.other.name == "beer" ) then
 							score = score + 2
 						else
@@ -197,12 +205,12 @@ function scene:create( event )
 		if event.phase == "began" then
 			targetxStart = garbage_default.x
 			xStart = event.xStart
-	    	print("inicio: "..event.xStart)
+	    	--print("inicio: "..event.xStart)
 	    elseif event.phase == "moved" then
-	    	print("progresso: "..event.x)
+	    	--print("progresso: "..event.x)
 
 	    	xDiff = event.x - xStart
-	    	print("difernça: "..xDiff)
+	    	--print("difernça: "..xDiff)
 
 	    	if ( xDiff < 0 ) then
 	    		--print("Movendo para a direita")
@@ -223,6 +231,7 @@ function scene:create( event )
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
 	sceneGroup:insert( floor)
+	sceneGroup:insert( button1 )
 
 	--inserindo objetos na tela com base no tempo
 	local time = 1000
@@ -257,7 +266,7 @@ function scene:create( event )
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 		sceneGroup:insert( object )
 
-      	if (iterations < 15) then
+      	if (iterations < 0) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
       	end
 	end
