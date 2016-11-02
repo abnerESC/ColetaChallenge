@@ -13,6 +13,9 @@ local physics = require "physics"
 -- include Corona's "widget" library
 local widget = require "widget"
 
+local music = audio.loadSound( "music.mp3")
+audio.play( music , {loops = -1})
+
 --------------------------------------------
 
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
@@ -31,10 +34,10 @@ function scene:create( event )
 	physics.pause()
 	physics.setDrawMode( "normal" )
 
-	local background = display.newRect( display.screenOriginX, display.screenOriginY, screenW, screenH )
+	local background = display.newImageRect( "img/screenComponents/build.jpg", screenW, screenH * 0.7 )
+	background.x, background.y = display.screenOriginX, display.screenOriginY
 	background.anchorX = 0 
 	background.anchorY = 0
-	background:setFillColor( .5 )
 
 	--criando a parede esquerda e direita
 	--local wallLeft = display.newRect( 0,0,100,screenH )
@@ -65,10 +68,10 @@ function scene:create( event )
 	vectorAux = {}
 	vectorGeral = {vectorObjetivo1, vectorObjetivo2, vectorNaoObjetivo}
 	for i=1,50 do
-		print("iteração: " .. i)
+		--print("iteração: " .. i)
 		--pegando a posição aleatória do array de acordo com seu tamanho
 		limite = #vectorGeral
-		print(limite)
+		--print(limite)
 		positionOfArray = math.random( 1, limite )
 
 		--criando vetor auxiliar para receber um dos vetores de imagens
@@ -82,7 +85,7 @@ function scene:create( event )
 		--se for 1, significa que estão acabando as imagens para serem usadas dentro
 		--deste vetor
 		if ( vectorSize > 1 ) then
-		print("colocando imagem " .. vectorAux[ vectorSize ] .. " dentro de customVectorOfImage")
+		--print("colocando imagem " .. vectorAux[ vectorSize ] .. " dentro de customVectorOfImage")
 
 			--colocando imagem dentro do vetor
 			--para posteriormente serem jogadas na tela
@@ -94,7 +97,7 @@ function scene:create( event )
 		--em caso de tamanho 1, será necessário decrementar o vetor geral pois este vetor
 		--não será mais usado
 		elseif ( vectorSize == 1 ) then
-			print("colocando imagem " .. vectorAux[ vectorSize ] .. " pela última vez dentro de customVectorOfImage")
+			--print("colocando imagem " .. vectorAux[ vectorSize ] .. " pela última vez dentro de customVectorOfImage")
 
 			--colocando imagem deste vetor pela última vez dentro do vetor customizado
 			customVectorOfImage[i] = vectorAux[ vectorSize ]
@@ -102,7 +105,7 @@ function scene:create( event )
 			--decrementando o vetor para nunca mais ser usado
 			vectorAux[ vectorSize ] = nil
 
-			print("O vetor está zerado")
+			--print("O vetor está zerado")
 
 			--decrementando o vetor geral
 			vectorGeral[positionOfArray] = nil
@@ -120,19 +123,19 @@ function scene:create( event )
 
 					vectorGeralAux[iterador] = vectorGeral[j]
 
-					print("Colocando vetor não vazio dentro do vetor auxiliar")
+					--print("Colocando vetor não vazio dentro do vetor auxiliar")
 					
 				end
 			end
 
-			print("Vetor geral atualizado")
+			--print("Vetor geral atualizado")
 
 			vectorGeral = vectorGeralAux
 		end
 	end
 	
 	--criando o chão
-	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.2 )
+	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.3 )
 	floor.name = "floor"
 	floor.anchorX = 0
 	floor.anchorY = 1
@@ -142,8 +145,18 @@ function scene:create( event )
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando o texto que representará a pontuação
-	textoPontuacao = { text = "0", x = display.contentCenterX, y = 10, width = 200, height = 0, align = "center", font = native.systemFont, fontSize = 40  }
-	local pontuacao = display.newEmbossedText( textoPontuacao )
+	--textoPontuacao = { text = "0", x = display.contentCenterX, y = 10, width = 200, height = 0, align = "center", font = native.systemFont, fontSize = 40  }
+	--local pontuacao = display.newEmbossedText( textoPontuacao )
+
+	pontuacao = widget.newButton({
+		defaultFile="img/buttons/oval.png",
+		width=50, height=50,
+		onEvent = handleButtonEvent,
+		labelColor = {default={ 1, 1, 1 }}
+		})
+	pontuacao.x = display.contentCenterX
+	pontuacao.y = 10
+	pontuacao:setLabel("0")
  	
 	--criando texto que representará os objetos a serem coletados
 
@@ -173,7 +186,7 @@ function scene:create( event )
 			if ( event.target.name == "floor" ) then
 				event.other:removeSelf()
 				score = score - 1
-				pontuacao:setText(score)
+				pontuacao:setLabel(score)
     		else
     			--print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
 				if( event.selfElement == 1 ) then
@@ -181,10 +194,10 @@ function scene:create( event )
 						--print( "Bom trabalho!" )
 						if ( event.other.name == "writer" or event.other.name == "beer" ) then
 							score = score + 2
-							if (event.other.name == "writer") then
+							if (event.other.name == "writer" and objetivo1[3] <= objetivo1[2] ) then
 								objetivo1[3] = objetivo1[3] + 1
 								buttonObjetivo1:setLabel( objetivo1[3] .. "/" .. objetivo1[2] )
-							elseif ( event.other.name == "beer" ) then
+							elseif ( event.other.name == "beer" and objetivo2[3] <= objetivo2[2] ) then
 								objetivo2[3] = objetivo2[3] + 1
 								buttonObjetivo2:setLabel( objetivo2[3] .. "/" .. objetivo2[2] )
 							end
@@ -194,7 +207,7 @@ function scene:create( event )
 					else
 						score = score - 2
 					end
-					pontuacao:setText(score)
+					pontuacao:setLabel(score)
 					event.other:removeSelf()
 				end
 			end
@@ -337,7 +350,7 @@ function scene:create( event )
   		end
 
       	--os objetos estão sendo inseridos em lugares aleatórios da tela
-		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -100
+		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
 		--aumentando a gravidade gradativamente
 		physics.setGravity(0, 2 + iterations*0,2)
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
@@ -345,11 +358,17 @@ function scene:create( event )
 
       	if (iterations < #customVectorOfImage) then
            currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
+       	else
+       		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2]) then
+       			native.showAlert("Parabéns!!!! Você ganhou!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1])
+       		else
+       			native.showAlert("Ownn! Você perdeu!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1])
+       		end
       	end
 	end
 	--variávei usáveis
 	local buttonWidth = floor.width/4
-	local buttonHeight = floor.height/2
+	local buttonHeight = floor.height/3
 
 	--ESCUTANDO CLIQUE DOS BOTÕES DE MUDANÇA DE COR DA LATA
 	local function handleButtonEvent( event )
@@ -388,6 +407,14 @@ function scene:create( event )
 		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
 	    sceneGroup:insert( garbage_default )
 	end
+
+	function initLevel()
+		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
+	end
+
+	native.showAlert("Bem-vindo ao nível 1",
+					"Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
+					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
 	local buttonChangeColor1 = widget.newButton({
@@ -429,8 +456,6 @@ function scene:create( event )
 	buttonChangeColor4.x = floor.x + buttonWidth*3.5
 	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
 	buttonChangeColor4.id = VIDRO
-
-	currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 
 	--BOTÕES COM OBJETIVO DE FASE
 	buttonObjetivo1 = widget.newButton({
