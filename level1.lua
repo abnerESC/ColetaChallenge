@@ -26,8 +26,8 @@ local isValidScore = true
 local score = 0;
 
 --OBJETIVO DA FASE
-local objetivo1 = { "writer", 1, 0 }
-local objetivo2 = { "beer", 1, 0 }
+local objetivo1 = { "writer", 9, 0 }
+local objetivo2 = { "beer", 6, 0 }
 
 
 
