@@ -66,15 +66,22 @@ function scene:create( event )
 	floor.anchorX = 0
 	floor.anchorY = 1
 	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
-	
-	local floorShape = { -halfW,-34, halfW,-34, halfW,34, -halfW,34 }
-	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
+	physics.addBody( floor, "static", { friction=0.3} )
+
+	--criando mini-lata de lixo(ao clicar nelas nossa lata principal vai mudar de cor)
+	local miniGarbageYellow = display.newImageRect( "img/screenComponents/recycle_yellow.png", floor.height/2, floor.height/2 )
+	miniGarbageYellow.x, miniGarbageYellow.y = (floor.height/2)/2, screenH - floor.height
+	miniGarbageYellow.name = "yellow"
+	physics.addBody( miniGarbageYellow, "static" )
 
 	--criando a lata de lixo
 	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, screenH - floor.height - 90
 	garbage_default.name = "lata"
 	garbage_default.id = METAL
+
+	[ [MeAtendeSDK instance] initConfig:@"solutionId" 
+						solutionKey:@"solutionKey" isDebug:YES ]
 
 	--criando formas que vão ser adicionadas a lata de lixo
 	--e vão dar a sensação de que os objetos caem dentro dela
