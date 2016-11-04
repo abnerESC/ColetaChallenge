@@ -13,12 +13,13 @@ local physics = require "physics"
 -- include Corona's "widget" library
 local widget = require "widget"
 
---local music = audio.loadSound( "music.mp3")
+local music = audio.loadSound( "music.mp3")
 --audio.play( music , {loops = -1})
 
 --------------------------------------------
 
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
+local marginTop = 15
 
 local VIDRO, PAPEL, METAL, PLASTICO = "vidro", "papel", "metal", "plastico"
 
@@ -26,8 +27,8 @@ local isValidScore = true
 local score = 0;
 
 --OBJETIVO DA FASE
-local objetivo1 = { "writer", 9, 0 }
-local objetivo2 = { "beer", 6, 0 }
+local objetivo1 = { "rolo de papel", 9, 0 }
+local objetivo2 = { "cerveja", 6, 0 }
 
 
 
@@ -63,9 +64,9 @@ function scene:create( event )
 		vectorObjetivo2[i] = objetivo2[1]
 	end
 
-	naoObjetivo = {"champagne","coffee-cup","cutlery", "plastic-cup"}
+	naoObjetivo = {"champagne","copo de café","talheres", "copo de plástico"}
 	vectorNaoObjetivo = {}
-	for i=1,3 do
+	for i=1,35 do
 		vectorNaoObjetivo[i] = naoObjetivo[math.random(1,4)]
 	end
 
@@ -150,22 +151,23 @@ function scene:create( event )
 	local floorShape = {  -floor.width/2,-floor.height/2, floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,floor.height/2 }
 	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
-	--criando o texto que representará a pontuação
+	--criando o botão que representará a pontuação
 
 	pontuacao = widget.newButton({
 		defaultFile="img/buttons/oval.png",
 		width=50, height=50,
-		onEvent = handleButtonEvent,
 		labelColor = {default={ 1, 1, 1 }}
 		})
-	pontuacao.x = display.contentCenterX
-	pontuacao.y = 10
+	pontuacao.x = floor.x + 30
+	pontuacao.y = marginTop
 	pontuacao:setLabel("0")
- 	
-	--criando texto que representará os objetos a serem coletados
+
+	--ESPAÇO PARA VISUALIZAR PROGRESSO
+	local space = display.newRoundedRect( floor.x + screenW/2, marginTop, screenW - 10, 50, 25)
+	space:toFront()
 
 	--criando a lata de lixo
-	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
+	local garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, floor.y - floor.height - 45
 	garbage_default.name = "lata"
 	garbage_default.id = METAL
@@ -194,12 +196,12 @@ function scene:create( event )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
 						--print( "Bom trabalho!" )
-						if ( event.other.name == "writer" or event.other.name == "beer" ) then
+						if ( event.other.name == objetivo1[1] or event.other.name == objetivo2[1] ) then
 							score = score + 2
-							if (event.other.name == "writer" and objetivo1[3] <= objetivo1[2] ) then
+							if (event.other.name == objetivo1[1] and objetivo1[3] <= objetivo1[2] ) then
 								objetivo1[3] = objetivo1[3] + 1
 								buttonObjetivo1:setLabel( objetivo1[3] .. "/" .. objetivo1[2] )
-							elseif ( event.other.name == "beer" and objetivo2[3] <= objetivo2[2] ) then
+							elseif ( event.other.name == objetivo2[1] and objetivo2[3] <= objetivo2[2] ) then
 								objetivo2[3] = objetivo2[3] + 1
 								buttonObjetivo2:setLabel( objetivo2[3] .. "/" .. objetivo2[2] )
 							end
@@ -307,13 +309,13 @@ function scene:create( event )
       	object.name = image
 		object:toBack()
 
-      	if image == "writer" then
+      	if image == "rolo de papel" then
       		object.id = PAPEL
-  		elseif image == "beer" or image == "champagne" then
+  		elseif image == "cerveja" or image == "champagne" then
   			object.id = VIDRO
-		elseif image == "plastic-cup" or image == "coffee-cup" then
+		elseif image == "copo de plástico" or image == "copo de café" then
 			object.id = PLASTICO
-		elseif image == "cutlery" then
+		elseif image == "talheres" then
 			object.id = METAL
   		end
 
@@ -322,7 +324,9 @@ function scene:create( event )
 		--aumentando a gravidade gradativamente
 		physics.setGravity(0, 2 + iterations*0,2)
 		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
+		object:toBack()
 		sceneGroup:insert( object )
+		sceneGroup:insert( space )
 
 		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
 			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Próxima fase >"}, nil)
@@ -346,21 +350,21 @@ function scene:create( event )
 	    if ( "ended" == event.phase ) then
 	        if( event.target.id == VIDRO )then
 				print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle-g.png", 90, 90  )
 				garbage_default.id = VIDRO
 			elseif ( event.target.id == METAL )then
 				print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90  )
 				garbage_default.id = METAL
 			
 			elseif ( event.target.id == PAPEL )then
 				print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle-b.png", 90, 90  )
 				garbage_default.id = PAPEL
 			
 			elseif ( event.target.id == PLASTICO )then
 				print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle-r.png", 90, 90  )
 				garbage_default.id = PLASTICO
 			
 			end
@@ -387,7 +391,7 @@ function scene:create( event )
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
 	local buttonChangeColor1 = widget.newButton({
-		defaultFile="img/buttons/button-yellow-metal.png",
+		defaultFile="img/buttons/oval-y.png",
 		overFile="img/buttons/button-yellow-metal-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
@@ -397,7 +401,7 @@ function scene:create( event )
 	buttonChangeColor1.id = METAL
 
 	local buttonChangeColor2 = widget.newButton({
-		defaultFile="img/buttons/button-red-plastico.png",
+		defaultFile="img/buttons/oval-r.png",
 		overFile="img/buttons/button-red-plastico-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
@@ -407,7 +411,7 @@ function scene:create( event )
 	buttonChangeColor2.id = PLASTICO
 
 	local buttonChangeColor3 = widget.newButton({
-		defaultFile="img/buttons/button-blue-papel.png",
+		defaultFile="img/buttons/oval-b.png",
 		overFile="img/buttons/button-blue-papel-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
@@ -417,7 +421,7 @@ function scene:create( event )
 	buttonChangeColor3.id = PAPEL
 
 	local buttonChangeColor4 = widget.newButton({
-		defaultFile="img/buttons/button-green-vidro.png",
+		defaultFile="img/buttons/oval-g.png",
 		overFile="img/buttons/button-green-vidro-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
@@ -426,30 +430,31 @@ function scene:create( event )
 	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
 	buttonChangeColor4.id = VIDRO
 
+	sceneGroup:insert( garbage_default )
+	sceneGroup:insert(space)
+
 	--BOTÕES COM OBJETIVO DE FASE
 	buttonObjetivo1 = widget.newButton({
 		defaultFile="img/objects/".. objetivo1[1] ..".png",
 		width=30, height=30,
 		onEvent = handleButtonEvent,
-		labelColor = {default={ 1, 1, 1 }},
+		labelColor = {default={ 0, 0, 0 }},
 		labelXOffset = 30
 	})
-	buttonObjetivo1.x = floor.x + 30
-	buttonObjetivo1.y = 100
+	buttonObjetivo1.x = floor.x + 100
+	buttonObjetivo1.y = space.y
 	buttonObjetivo1:setLabel(objetivo1[3] .. "/" .. objetivo1[2])
 
 	buttonObjetivo2 = widget.newButton({
 	defaultFile="img/objects/".. objetivo2[1] ..".png",
 	width=30, height=30,
 	onEvent = handleButtonEvent,
-	labelColor = {default={ 1, 1, 1 }},
+	labelColor = {default={ 0, 0, 0 }},
 	labelXOffset = 30
 	})
-	buttonObjetivo2.x = floor.x + 30
-	buttonObjetivo2.y = 140
+	buttonObjetivo2.x = buttonObjetivo1.x + 60
+	buttonObjetivo2.y = space.y
 	buttonObjetivo2:setLabel(objetivo2[3] .. "/" .. objetivo2[2])
-
-	sceneGroup:insert( garbage_default )
 end
 
 function scene:show( event )
