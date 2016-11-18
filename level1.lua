@@ -386,7 +386,7 @@ function scene:create( event )
 	end
 
 	native.showAlert("Bem-vindo ao nível 1",
-					"Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
+					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1] .. "s",
 					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
