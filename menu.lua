@@ -35,7 +35,8 @@ local function onPlayBtnRelease()
 	audio.play( music , {loops = -1})
 	
 	-- go to level1.lua scene
-	composer.gotoScene( "level1", "fade", 500 )
+	composer.removeScene( "menu" )
+	composer.gotoScene( "level2")
 	
 	return true	-- indicates successful touch
 end
@@ -171,31 +172,31 @@ function scene:create( event )
 
 	------------------------------------------------------------
 
-	local customVectorOfImage = {"champagne","copo de café","talheres", "copo de plástico"}
+	local customVectorOfImage = {"champagnes","copos de café","talheres", "copos de plástico", "cervejas", "rolos de papel"}
 	local time = 2000
 	local iterations = 0;
-	local currentTimer = nil;
+	local objectTimer = nil;
 
 	timer.performWithDelay(0, createObjectsWithDelay);
 
 	local function createObjectsWithDelay()
       	iterations = iterations + 1
-
-      	image = customVectorOfImage[math.random(1,#customVectorOfImage)]
-
-      	imagePath = "img/objects/" .. image .. ".png"
-
-      	object = display.newImageRect( imagePath, 15, 15 )
-      	object.name = "itemDeMenu"
-
-      	--os objetos estão sendo inseridos em lugares aleatórios da tela
-		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
-		--aumentando a gravidade gradativamente
-		physics.setGravity(0, 2 + iterations*0,2)
-		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
-		sceneGroup:insert( object )
 		if (iterations < total) then
-			timer.performWithDelay(time, createObjectsWithDelay);
+
+	      	image = customVectorOfImage[math.random(1,#customVectorOfImage)]
+
+	      	imagePath = "img/objects/" .. image .. ".png"
+
+	      	object = display.newImageRect( imagePath, 15, 15 )
+	      	object.name = "itemDeMenu"
+
+	      	--os objetos estão sendo inseridos em lugares aleatórios da tela
+			object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
+			--aumentando a gravidade gradativamente
+			physics.setGravity(0, 2 + iterations*0,2)
+			physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
+			sceneGroup:insert( object )
+			objectTimer = timer.performWithDelay(time, createObjectsWithDelay);
 		end
 	end
 	createObjectsWithDelay()
@@ -221,6 +222,7 @@ function scene:show( event )
 end
 
 function scene:hide( event )
+	print("menu:hide()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
@@ -236,6 +238,7 @@ function scene:hide( event )
 end
 
 function scene:destroy( event )
+	print("menu:destroy()")
 	local sceneGroup = self.view
 	
 	package.loaded[physics] = nil

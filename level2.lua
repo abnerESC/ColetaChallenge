@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------
 --
--- level1.lua
+-- level2.lua
 --
 -----------------------------------------------------------------------------------------
 
@@ -21,18 +21,18 @@ local errorSound = audio.loadSound( "audio/error1.wav" )
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
 local marginTop = 15
 
-local VIDRO, PAPEL, METAL, PLASTICO = "vidro", "papel", "metal", "plastico"
+local VIDRO, PAPEL, METAL, PLASTICO, ORGANICO = "vidro", "papel", "metal", "plastico", "organico"
 
 local isValidScore = true
 local score = 0;
 
 --OBJETIVO DA FASE
-local objetivo1 = { "rolos de papel", 9, 0 }
-local objetivo2 = { "cervejas", 6, 0 }
+local objetivo1 = { "cascas de banana", 4, 0 }
+local objetivo2 = { "copos de plástico", 6, 0 }
 
 
 function scene:create( event )
-	print("leve1:create()")
+	print("level2:create()")
 
 	local sceneGroup = self.view
 
@@ -40,7 +40,7 @@ function scene:create( event )
 
 	physics.setDrawMode( "hybrid" )
 
-	local background = display.newImageRect( "img/screenComponents/build.jpg", screenW, screenH * 0.9 )
+	local background = display.newImageRect( "img/screenComponents/building3.png", screenW, screenH * 0.9 )
 	background.x, background.y = display.screenOriginX, display.screenOriginY
 	background.anchorX = 0 
 	background.anchorY = 0
@@ -64,7 +64,7 @@ function scene:create( event )
 		vectorObjetivo2[i] = objetivo2[1]
 	end
 
-	naoObjetivo = {"champagnes","copos de café","talheres", "copos de plástico"}
+	naoObjetivo = {"champagnes","copos de café","talheres", "bananas"}
 	vectorNaoObjetivo = {}
 	for i=1,35 do
 		vectorNaoObjetivo[i] = naoObjetivo[math.random(1,4)]
@@ -201,10 +201,10 @@ function scene:create( event )
 				pontuacao:setLabel(score)
 
     		else
-    			--print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
+    			print( "Lata de " ..  event.target.id .. " coletou " .. event.other.name .." de " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
-						--print( "Bom trabalho!" )
+						print( "Bom trabalho!" )
 						audio.play( scoreSound )
 						if ( event.other.name == objetivo1[1] or event.other.name == objetivo2[1] ) then
 							score = score + 2
@@ -317,14 +317,19 @@ function scene:create( event )
       	local object = display.newImageRect( imagePath, 45, 45 )
       	object.name = image
 		object:toBack()
+		--print("Criando " .. object.name .. " de ")
 
-      	if image == "rolos de papel" then
-      		object.id = PAPEL
+      	if image == "cascas de banana" or image == "bananas" then
+      		print("ORGANICO")
+      		object.id = ORGANICO
   		elseif image == "cervejas" or image == "champagnes" then
+      		print("VIDRO")
   			object.id = VIDRO
-		elseif image == "copos de plástico" or image == "copos de café" then
+		elseif image == "copos de café" or image == "copos de plástico" then
+      		print("PLASTICO: " .. image)
 			object.id = PLASTICO
 		elseif image == "talheres" then
+      		print("METAL")
 			object.id = METAL
   		end
 
@@ -338,7 +343,7 @@ function scene:create( event )
 		sceneGroup:insert( space )
 
 		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejass", {"Próxima fase >"}, nil)
+			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, nil)
 			isValidScore = false
 		elseif (iterations < #customVectorOfImage) then
 			currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
@@ -366,10 +371,10 @@ function scene:create( event )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90  )
 				garbage_default.id = METAL
 			
-			elseif ( event.target.id == PAPEL )then
+			elseif ( event.target.id == ORGANICO )then
 				--print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle-b.png", 90, 90  )
-				garbage_default.id = PAPEL
+				garbage_default = display.newImageRect( "img/screenComponents/recycle-br.png", 90, 90  )
+				garbage_default.id = ORGANICO
 			
 			elseif ( event.target.id == PLASTICO )then
 				--print( "mudar para " .. event.target.id )
@@ -397,8 +402,8 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo ao nível 1",
-					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1] .. "s",
+	native.showAlert("Bem-vindo a São Paulo - BR",
+					"Alguém nesta academia tomou uma vitamina de banana. Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
@@ -423,14 +428,14 @@ function scene:create( event )
 	buttonChangeColor2.id = PLASTICO
 
 	local buttonChangeColor3 = widget.newButton({
-		defaultFile="img/buttons/oval-b.png",
-		overFile="img/buttons/oval-b-pressed.png",
+		defaultFile="img/buttons/oval-br.png",
+		overFile="img/buttons/oval-br-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor3.x = floor.x + buttonWidth*2.5
 	buttonChangeColor3.y = floor.y - floor.height*0.75 + 10
-	buttonChangeColor3.id = PAPEL
+	buttonChangeColor3.id = ORGANICO
 
 	local buttonChangeColor4 = widget.newButton({
 		defaultFile="img/buttons/oval-g.png",
@@ -470,12 +475,12 @@ function scene:create( event )
 end
 
 function scene:show( event )
-	print("leve1:show()")
+	print("level2:show()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
 	if phase == "will" then
-		print("leve1:show():will")
+		print("level2:show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
 		print("show():did")
@@ -488,27 +493,27 @@ function scene:show( event )
 end
 
 function scene:hide( event )
-	print("leve1:hide()")
+	print("level2:hide()")
 	local sceneGroup = self.view
 	
 	local phase = event.phase
 	
 	if event.phase == "will" then
-		print("leve1:hide():will")
+		print("level2:hide():will")
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 		--physics.stop()
 	elseif phase == "did" then
-		print("leve1:hide():did")
+		print("level2:hide():did")
 		-- Called when the scene is now off screen
 	end	
 	
 end
 
 function scene:destroy( event )
-	print("leve1:destroy()")
+	print("level2:destroy()")
 
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	-- 
