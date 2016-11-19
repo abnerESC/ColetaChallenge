@@ -16,14 +16,17 @@
    id="svg4303"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="background.svg">
+   sodipodi:docname="background.svg"
+   inkscape:export-filename="D:\Abner\workspace\Lua + Corona SDK\ColetaChallenge\img\menuComponents\background.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4305">
     <linearGradient
        inkscape:collect="always"
        id="linearGradient4853">
       <stop
-         style="stop-color:#00ffff;stop-opacity:1"
+         style="stop-color:#2980b9;stop-opacity:1"
          offset="0"
          id="stop4855" />
       <stop
@@ -50,7 +53,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35"
-     inkscape:cx="-152.14286"
+     inkscape:cx="-648.95388"
      inkscape:cy="520"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -68,7 +71,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>

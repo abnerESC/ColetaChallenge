@@ -15,18 +15,27 @@ local widget = require "widget"
 
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
 
+local menuSound = audio.loadSound( "audio/menu.mp3")
+audio.play(menuSound, { loops = -1 })
+
+local music = audio.loadSound( "audio/music.mp3")
+
 --------------------------------------------
 
 -- forward declarations and other locals
 local playBtn
 local total = 300
 
+local object;
+
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
+	audio.stop()
+	total = 0
+	audio.play( music , {loops = -1})
 	
 	-- go to level1.lua scene
 	composer.gotoScene( "level1", "fade", 500 )
-	total = 0
 	
 	return true	-- indicates successful touch
 end
@@ -88,7 +97,7 @@ function scene:create( event )
 		iteradorBuilder = iteradorBuilder + 1
 
 	 	builder1.y = builder1.y - 1
-		print("iteradorBuilder="..iteradorBuilder..", img.y="..builder1.y)
+		--print("iteradorBuilder="..iteradorBuilder..", img.y="..builder1.y)
 		if (iteradorBuilder < 100) then
 			timer.performWithDelay(40, builderAnimation);
 		end
@@ -101,7 +110,7 @@ function scene:create( event )
 		iteradorBuilder2 = iteradorBuilder2 + 1
 
 	 	builder2.y = builder2.y - 1
-		print("iteradorBuilder2="..iteradorBuilder2..", img.y="..builder2.y)
+		--print("iteradorBuilder2="..iteradorBuilder2..", img.y="..builder2.y)
 		if (iteradorBuilder2 < 100) then
 			timer.performWithDelay(0, builder2Animation);
 		end
@@ -176,7 +185,8 @@ function scene:create( event )
 
       	imagePath = "img/objects/" .. image .. ".png"
 
-      	local object = display.newImageRect( imagePath, 15, 15 )
+      	object = display.newImageRect( imagePath, 15, 15 )
+      	object.name = "itemDeMenu"
 
       	--os objetos estão sendo inseridos em lugares aleatórios da tela
 		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
@@ -227,6 +237,11 @@ end
 
 function scene:destroy( event )
 	local sceneGroup = self.view
+	
+	package.loaded[physics] = nil
+	physics = nil
+	object:removeSelf()
+	object = nil
 	
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	-- 

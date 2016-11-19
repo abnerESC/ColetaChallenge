@@ -13,8 +13,8 @@ local physics = require "physics"
 -- include Corona's "widget" library
 local widget = require "widget"
 
-local music = audio.loadSound( "music.mp3")
---audio.play( music , {loops = -1})
+local scoreSound = audio.loadSound( "audio/score.mp3" )
+local errorSound = audio.loadSound( "audio/error1.wav" )
 
 --------------------------------------------
 
@@ -31,14 +31,13 @@ local objetivo1 = { "rolo de papel", 9, 0 }
 local objetivo2 = { "cerveja", 6, 0 }
 
 
-
 function scene:create( event )
 
 	local sceneGroup = self.view
 
 	physics.start()
-	physics.pause()
-	physics.setDrawMode( "normal" )
+
+	--physics.setDrawMode( "hybrid" )
 
 	local background = display.newImageRect( "img/screenComponents/build.jpg", screenW, screenH * 0.9 )
 	background.x, background.y = display.screenOriginX, display.screenOriginY
@@ -74,10 +73,10 @@ function scene:create( event )
 	vectorAux = {}
 	vectorGeral = {vectorObjetivo1, vectorObjetivo2, vectorNaoObjetivo}
 	for i=1,( #vectorObjetivo1 + #vectorObjetivo2 + #vectorNaoObjetivo ) do
-		print("iteração: " .. i)
+		--print("iteração: " .. i)
 		--pegando a posição aleatória do array de acordo com seu tamanho
 		limite = #vectorGeral
-		print(limite)
+		--print(limite)
 		positionOfArray = math.random( 1, limite )
 
 		--criando vetor auxiliar para receber um dos vetores de imagens
@@ -188,14 +187,24 @@ function scene:create( event )
 
 		if ( event.phase == "began" and isValidScore == true ) then
 			if ( event.target.name == "floor" ) then
+				if ( event.other.name == "itemDeMenu") then
+
+				else
+					audio.play( errorSound )
+				end
 				event.other:removeSelf()
 				score = score - 1
+				if (score <= 0 ) then
+					score = 0
+				end
 				pontuacao:setLabel(score)
+
     		else
     			--print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
 						--print( "Bom trabalho!" )
+						audio.play( scoreSound )
 						if ( event.other.name == objetivo1[1] or event.other.name == objetivo2[1] ) then
 							score = score + 2
 							if (event.other.name == objetivo1[1] and objetivo1[3] <= objetivo1[2] ) then
@@ -209,7 +218,15 @@ function scene:create( event )
 							score = score + 1
 						end
 					else
+						if ( event.other.name == "itemDeMenu") then
+
+						else
+							audio.play( errorSound )
+						end
 						score = score - 2
+						if (score <= 0 ) then
+							score = 0
+						end
 					end
 					pontuacao:setLabel(score)
 					event.other:removeSelf()
@@ -218,10 +235,6 @@ function scene:create( event )
 		elseif ( event.phase == "ended" ) then
 		end
 	end
-	
-	local function onGarbageCollision( self, event )
-		print( "" ..event.selfElement )
-	end
 
 	floor.collision = onLocalCollision
 	floor:addEventListener("collision")
@@ -229,27 +242,22 @@ function scene:create( event )
 	garbage_default.collision = onLocalCollision
 	garbage_default:addEventListener("collision")
 
-	local function onGlobalCollision( event )
-
-	    if ( event.phase == "began" ) then
-	        print( "began: " )
-
-	    elseif ( event.phase == "ended" ) then
-	        print( "ended: " )
-	    end
-	end
-
 	--Runtime:addEventListener( "collision", onGlobalCollision )
 
 	--função que permite mover a lata de lixo pela tela
 	function garbage_default:touch( event )
 
+		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
+	    physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
+
 	    if event.phase == "began" then
+			print("touch began")
 		
 	        self.markX = self.x
 	        --self.markY = self.y
 		
 	    elseif event.phase == "moved" then
+			print("touch moved")
 		
 	        local x = (event.x - event.xStart) + self.markX
 	        --local y = (event.y - event.yStart) + self.markY
@@ -329,7 +337,7 @@ function scene:create( event )
 		sceneGroup:insert( space )
 
 		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Próxima fase >"}, nil)
+			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, nil)
 			isValidScore = false
 		elseif (iterations < #customVectorOfImage) then
 			currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
@@ -349,21 +357,21 @@ function scene:create( event )
 		
 	    if ( "ended" == event.phase ) then
 	        if( event.target.id == VIDRO )then
-				print( "mudar para " .. event.target.id )
+				--print( "mudar para " .. event.target.id )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle-g.png", 90, 90  )
 				garbage_default.id = VIDRO
 			elseif ( event.target.id == METAL )then
-				print( "mudar para " .. event.target.id )
+				--print( "mudar para " .. event.target.id )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90  )
 				garbage_default.id = METAL
 			
 			elseif ( event.target.id == PAPEL )then
-				print( "mudar para " .. event.target.id )
+				--print( "mudar para " .. event.target.id )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle-b.png", 90, 90  )
 				garbage_default.id = PAPEL
 			
 			elseif ( event.target.id == PLASTICO )then
-				print( "mudar para " .. event.target.id )
+				--print( "mudar para " .. event.target.id )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle-r.png", 90, 90  )
 				garbage_default.id = PLASTICO
 			
@@ -379,6 +387,9 @@ function scene:create( event )
 
 		physics.addBody( garbage_default, "static", { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage })
 	    sceneGroup:insert( garbage_default )
+	    physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
+	    floor.collision = onLocalCollision
+		floor:addEventListener("collision")
 	end
 
 	function initLevel()
@@ -458,32 +469,38 @@ function scene:create( event )
 end
 
 function scene:show( event )
+	print("show()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
 	if phase == "will" then
+		print("show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
+		print("show():did")
 		-- Called when the scene is now on screen
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		physics.start()
+		--physics.start()
 	end
 end
 
 function scene:hide( event )
+		print("hide()")
 	local sceneGroup = self.view
 	
 	local phase = event.phase
 	
 	if event.phase == "will" then
+		print("hide():will")
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
-		physics.stop()
+		--physics.stop()
 	elseif phase == "did" then
+		print("hide():did")
 		-- Called when the scene is now off screen
 	end	
 	

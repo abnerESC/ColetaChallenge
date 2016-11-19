@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="2560"
@@ -15,9 +16,32 @@
    id="svg4151"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="logo.svg">
+   sodipodi:docname="banner2.svg">
   <defs
-     id="defs4153" />
+     id="defs4153">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4701">
+      <stop
+         style="stop-color:#2980b9;stop-opacity:1"
+         offset="0"
+         id="stop4703" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="1"
+         id="stop4705" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4701"
+       id="linearGradient4707"
+       x1="1445.5171"
+       y1="450.84488"
+       x2="1445.5171"
+       y2="1164.6375"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.4,0,0,1,995.31034,140)" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -26,7 +50,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.25"
-     inkscape:cx="1474.3758"
+     inkscape:cx="1692.8468"
      inkscape:cy="244.13793"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -45,7 +69,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -54,6 +78,17 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-332.36216)">
+    <rect
+       style="opacity:1;fill:url(#linearGradient4707);fill-opacity:1;stroke:none;stroke-width:13.41499996;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+       id="rect4699"
+       width="1280"
+       height="720"
+       x="1061.5172"
+       y="578.56909"
+       ry="0"
+       inkscape:export-filename="D:\Abner\workspace\Lua + Corona SDK\ColetaChallenge\documents\banner.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
     <g
        id="layer1-8"
        inkscape:label="Camada 1"
