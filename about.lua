@@ -17,6 +17,11 @@ local screenW, screenH, halfW = display.actualContentWidth, display.actualConten
 
 local menuSound = audio.loadSound( "audio/menu.mp3")
 --audio.play(menuSound, { loops = -1 })
+local function onBackPressed()
+	composer.gotoScene( "menu", "fade", 500 )
+	
+	return true	-- indicates successful touch
+end
 
 
 function scene:create( event )
@@ -26,8 +31,18 @@ function scene:create( event )
 	physics.pause()
 	physics.setDrawMode( "normal" )
 
+	local back = widget.newButton({
+		defaultFile="img/buttons/back.png",
+		width=30, height=30,
+		onEvent = onBackPressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	back.x = screenW - 35
+	back.y = 35
+
 	local background = display.newImageRect( "img/menuComponents/superbackground.png", screenW, screenH * 2 )
-	background.x, background.y = display.screenOriginX, display.screenOriginY
+	background.x, background.y = 0,0
 	background.anchorX = 0
 	
 	sceneGroup:insert( background )
@@ -50,11 +65,13 @@ function scene:create( event )
 	proporcaoDistancia = ( screenH - 100 )/6
 	margemDireita = 50
 	margemDireitaEntreObjetos = 100
+	dimensoesCores = 30
+	dimensoesObjects = 20
 
 	local papel = widget.newButton({
 		defaultFile="img/buttons/oval-b.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -62,16 +79,16 @@ function scene:create( event )
 	papel.y = 70
 	papel:setLabel("Papel")
 
-	roloDePapel = display.newImageRect( "img/objects/rolos de papel.png", 30, 30 )
+	roloDePapel = display.newImageRect( "img/objects/rolos de papel.png", dimensoesObjects, dimensoesObjects )
 	roloDePapel.x, roloDePapel.y = papel.x + margemDireitaEntreObjetos, papel.y
 
-	blocoDeNotas = display.newImageRect( "img/objects/blocos de notas.png", 30, 30 )
+	blocoDeNotas = display.newImageRect( "img/objects/blocos de notas.png", dimensoesObjects, dimensoesObjects )
 	blocoDeNotas.x, blocoDeNotas.y = roloDePapel.x + margemDireitaEntreObjetos, papel.y
 
 	local plastico = widget.newButton({
 		defaultFile="img/buttons/oval-r.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -79,16 +96,16 @@ function scene:create( event )
 	plastico.y = papel.y + proporcaoDistancia
 	plastico:setLabel("Plástico")
 
-	copoDeCafe = display.newImageRect( "img/objects/copos de café.png", 30, 30 )
+	copoDeCafe = display.newImageRect( "img/objects/copos de café.png", dimensoesObjects, dimensoesObjects )
 	copoDeCafe.x, copoDeCafe.y = plastico.x + margemDireitaEntreObjetos, plastico.y
 
-	coposDePlastico = display.newImageRect( "img/objects/copos de plástico.png", 30, 30 )
+	coposDePlastico = display.newImageRect( "img/objects/copos de plástico.png", dimensoesObjects, dimensoesObjects )
 	coposDePlastico.x, coposDePlastico.y = copoDeCafe.x + margemDireitaEntreObjetos, plastico.y
 
 	local vidro = widget.newButton({
 		defaultFile="img/buttons/oval-g.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -96,16 +113,16 @@ function scene:create( event )
 	vidro.y = plastico.y + proporcaoDistancia
 	vidro:setLabel("Vidro")
 
-	cerveja = display.newImageRect( "img/objects/cervejas.png", 30, 30 )
+	cerveja = display.newImageRect( "img/objects/cervejas.png", dimensoesObjects, dimensoesObjects )
 	cerveja.x, cerveja.y = vidro.x + margemDireitaEntreObjetos, vidro.y
 
-	champagne = display.newImageRect( "img/objects/champagnes.png", 30, 30 )
+	champagne = display.newImageRect( "img/objects/champagnes.png", dimensoesObjects, dimensoesObjects )
 	champagne.x, champagne.y = cerveja.x + margemDireitaEntreObjetos, vidro.y
 
 	local metal = widget.newButton({
 		defaultFile="img/buttons/oval-y.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -113,13 +130,13 @@ function scene:create( event )
 	metal.y = vidro.y + proporcaoDistancia
 	metal:setLabel("Metal")
 
-	talher = display.newImageRect( "img/objects/talheres.png", 30, 30 )
+	talher = display.newImageRect( "img/objects/talheres.png", dimensoesObjects, dimensoesObjects )
 	talher.x, talher.y = metal.x + margemDireitaEntreObjetos, metal.y
 
 	local organico = widget.newButton({
 		defaultFile="img/buttons/oval-br.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -127,16 +144,16 @@ function scene:create( event )
 	organico.y = metal.y + proporcaoDistancia
 	organico:setLabel("Oragânico")
 
-	pizza = display.newImageRect( "img/objects/pizzas.png", 30, 30 )
+	pizza = display.newImageRect( "img/objects/pizzas.png", dimensoesObjects, dimensoesObjects )
 	pizza.x, pizza.y = organico.x + margemDireitaEntreObjetos, organico.y
 
-	cascaDeBanana = display.newImageRect( "img/objects/cascas de banana.png", 30, 30 )
+	cascaDeBanana = display.newImageRect( "img/objects/cascas de banana.png", dimensoesObjects, dimensoesObjects )
 	cascaDeBanana.x, cascaDeBanana.y = pizza.x + margemDireitaEntreObjetos, organico.y
 
 	local madeira = widget.newButton({
 		defaultFile="img/buttons/oval-bl.png",
-		width=50, height=50,
-		onEvent = onPlayBtnRelease,
+		width=dimensoesCores, height=dimensoesCores,
+		onEvent = nil,
 		labelColor = {default={ 1, 1, 1 }},
 		labelYOffset = -35
 	})
@@ -144,8 +161,46 @@ function scene:create( event )
 	madeira.y = organico.y + proporcaoDistancia
 	madeira:setLabel("Madeira")
 
-	lapis = display.newImageRect( "img/objects/lápis.png", 30, 30 )
+	lapis = display.newImageRect( "img/objects/lápis.png", dimensoesObjects, dimensoesObjects )
 	lapis.x, lapis.y = madeira.x + margemDireitaEntreObjetos, madeira.y
+
+	local function onKeyEvent( event )
+	    -- Print which key was pressed down/up
+	    local message = "Key '" .. event.keyName .. "' was pressed " .. event.phase
+	    print( message )
+
+	    -- If the "back" key was pressed on Android or Windows Phone, prevent it from backing out of the app
+	    if ( event.keyName == "back" ) then
+	        local platformName = system.getInfo( "platformName" )
+	        if ( platformName == "Android" ) or ( platformName == "WinPhone" ) then
+	            return true
+	        end
+	    end
+
+	    -- IMPORTANT! Return false to indicate that this app is NOT overriding the received key
+	    -- This lets the operating system execute its default handling of the key
+	    return false
+	end
+
+	-- Add the key event listener
+	Runtime:addEventListener( "key", onKeyEvent )
+	sceneGroup:insert( papel )
+	sceneGroup:insert( madeira )
+	sceneGroup:insert( metal )
+	sceneGroup:insert( plastico )
+	sceneGroup:insert( vidro )
+	sceneGroup:insert( organico )
+	sceneGroup:insert( pizza )
+	sceneGroup:insert( cascaDeBanana )
+	sceneGroup:insert( champagne )
+	sceneGroup:insert( lapis )
+	sceneGroup:insert( roloDePapel )
+	sceneGroup:insert( blocoDeNotas )
+	sceneGroup:insert( talher )
+	sceneGroup:insert( cerveja )
+	sceneGroup:insert( copoDeCafe )
+	sceneGroup:insert( coposDePlastico )
+	sceneGroup:insert( back )
 end
 
 function scene:show( event )
@@ -160,7 +215,7 @@ function scene:show( event )
 end
 
 function scene:hide( event )
-	print("menu:hide()")
+	print("about:hide()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
@@ -172,9 +227,51 @@ function scene:hide( event )
 end
 
 function scene:destroy( event )
-	print("menu:destroy()")
+	print("about:destroy()")
 	local sceneGroup = self.view
 
+	papel:removeSelf()
+	papel = nil
+	madeira:removeSelf()
+	madeira = nil
+	plastico:removeSelf()
+	plastico = nil
+	vidro:removeSelf()
+	vidro = nil
+	metal:removeSelf()
+	metal = nil
+	organico:removeSelf()
+	organico = nil
+
+	roloDePapel:removeSelf()
+	roloDePapel = nil
+
+	blocoDeNotas:removeSelf()
+	blocoDeNotas = nil
+
+	cerveja:removeSelf()
+	cerveja = nil
+
+	champagne:removeSelf()
+	champagne = nil
+
+	pizza:removeSelf()
+	pizza = nil
+
+	cascaDeBanana:removeSelf()
+	cascaDeBanana = nil
+
+	lapis:removeSelf()
+	lapis = nil
+
+	talher:removeSelf()
+	talher = nil
+
+	copoDeCafe:removeSelf()
+	copoDeCafe = nil
+
+	coposDePlastico:removeSelf()
+	coposDePlastico = nil
 end
 
 ---------------------------------------------------------------------------------

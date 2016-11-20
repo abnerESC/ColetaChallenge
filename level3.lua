@@ -32,6 +32,12 @@ local score = 0;
 local objetivo1 = { "lápis", 4, 0 }
 local objetivo2 = { "compassos", 6, 0 }
 
+local function onBackPressed()
+	composer.gotoScene( "menu", "fade", 500 )
+	
+	return true	-- indicates successful touch
+end
+
 
 function scene:create( event )
 	print("level3:create()")
@@ -41,6 +47,16 @@ function scene:create( event )
 	physics.start()
 
 	--physics.setDrawMode( "hybrid" )
+
+	local back = widget.newButton({
+		defaultFile="img/buttons/back-level.png",
+		width=30, height=30,
+		onEvent = onBackPressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	back.x = screenW - 40 	
+	back.y = 30
 	
 	--criando o chão
 	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.1 )
@@ -186,8 +202,6 @@ function scene:create( event )
 	physics.addBody( garbage_default, "static",  { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage})
 
 	local function onLocalCollision( self, event )
-	
-		event.target:toFront()
 
 		if ( event.phase == "began" and isValidScore == true ) then
 			if ( event.target.name == "floor" ) then
@@ -300,10 +314,6 @@ function scene:create( event )
 	
 	garbage_default:addEventListener( "touch", floor )
 	--floor:addEventListener( "touch", floor )
-	
-	--inserindo objetos na tela
-	sceneGroup:insert( background )
-	sceneGroup:insert( floor)
 
 	--inserindo objetos na tela com base no tempo
 	local time = 2000
@@ -344,6 +354,10 @@ function scene:create( event )
 		object:toBack()
 		sceneGroup:insert( object )
 		sceneGroup:insert( space )
+		sceneGroup:insert( back )
+		sceneGroup:insert( pontuacao )
+		sceneGroup:insert( buttonObjetivo2 )
+		sceneGroup:insert( buttonObjetivo1 )
 
 		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
 			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Próxima fase >"}, nil)
@@ -457,9 +471,6 @@ function scene:create( event )
 	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
 	buttonChangeColor4.id = PAPEL
 
-	sceneGroup:insert( garbage_default )
-	sceneGroup:insert(space)
-
 	--BOTÕES COM OBJETIVO DE FASE
 	buttonObjetivo1 = widget.newButton({
 		defaultFile="img/objects/".. objetivo1[1] ..".png",
@@ -482,6 +493,19 @@ function scene:create( event )
 	buttonObjetivo2.x = buttonObjetivo1.x + 60
 	buttonObjetivo2.y = space.y
 	buttonObjetivo2:setLabel(objetivo2[3] .. "/" .. objetivo2[2])
+
+	--inserindo objetos na tela
+	sceneGroup:insert( background )
+	sceneGroup:insert( space )
+	sceneGroup:insert( floor)
+	sceneGroup:insert( back )
+	sceneGroup:insert( pontuacao )
+	sceneGroup:insert( buttonObjetivo2 )
+	sceneGroup:insert( buttonObjetivo1 )
+	sceneGroup:insert( buttonChangeColor1 )
+	sceneGroup:insert( buttonChangeColor2 )
+	sceneGroup:insert( buttonChangeColor3 )
+	sceneGroup:insert( buttonChangeColor4 )
 end
 
 function scene:show( event )

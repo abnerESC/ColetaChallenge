@@ -39,14 +39,14 @@ local function onPlayBtnRelease()
 	-- go to level1.lua scene
 	composer.removeScene( "menu" )
 	sceneToGo = math.random(1,#vectorLevelRandom)
-	composer.gotoScene( "level3" )
+	composer.gotoScene( "level1" )
 	
 	return true	-- indicates successful touch
 end
 
 local function onAboutBtnRelease()
 	composer.gotoScene( "about", "fade", 500 )
-	total = 0
+	--total = 0
 	
 	return true	-- indicates successful touch
 end
@@ -59,10 +59,11 @@ local function onLevelBtnRelease()
 end
 
 function scene:create( event )
+	print("menu:create")
 	local sceneGroup = self.view
 
 	physics.start()
-	physics.pause()
+	--physics.pause()
 	physics.setDrawMode( "normal" )
 
 	-- Called when the scene's view does not exist.
@@ -72,7 +73,7 @@ function scene:create( event )
 
 	-- display a background image
 	local background = display.newImageRect( "img/menuComponents/background.png", screenW, screenH )
-	background.x, background.y = display.screenOriginX, display.screenOriginY
+	background.x, background.y = 0,0
 	background.anchorX = 0 
 	background.anchorY = 0
 	
@@ -175,7 +176,10 @@ function scene:create( event )
 
 	------------------------------------------------------------
 
-	local customVectorOfImage = {"champagnes","copos de café","talheres", "copos de plástico", "cervejas", "rolos de papel"}
+	local customVectorOfImage = {"champagnes","copos de café","talheres",
+			"copos de plástico","cervejas","rolos de papel","pizzas","cascas de banana",
+			"blocos de notas", "lápis", "bananas"}
+
 	local time = 2000
 	local iterations = 0;
 	local objectTimer = nil;
@@ -234,7 +238,7 @@ function scene:hide( event )
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
-		physics.stop()
+		--physics.stop()
 	elseif phase == "did" then
 		-- Called when the scene is now off screen
 	end	
