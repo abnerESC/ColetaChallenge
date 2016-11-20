@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------
 --
--- level2.lua
+-- level3.lua
 --
 -----------------------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ local widget = require "widget"
 
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
-local music = audio.loadSound( "audio/music.mp3" )
+local music = audio.loadSound( "audio/chinese.mp3" )
 audio.play( music , {loops = -1})
 
 --------------------------------------------
@@ -23,28 +23,39 @@ audio.play( music , {loops = -1})
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
 local marginTop = 30
 
-local VIDRO, PAPEL, METAL, PLASTICO, ORGANICO = "vidro", "papel", "metal", "plastico", "organico"
+local VIDRO, PAPEL, METAL, PLASTICO, ORGANICO, MADEIRA = "vidro", "papel", "metal", "plastico", "organico", "madeira"
 
 local isValidScore = true
 local score = 0;
 
 --OBJETIVO DA FASE
-local objetivo1 = { "cascas de banana", 4, 0 }
-local objetivo2 = { "copos de plástico", 6, 0 }
+local objetivo1 = { "lápis", 4, 0 }
+local objetivo2 = { "compassos", 6, 0 }
 
 
 function scene:create( event )
-	print("level2:create()")
+	print("level3:create()")
 
 	local sceneGroup = self.view
 
 	physics.start()
 
 	--physics.setDrawMode( "hybrid" )
+	
+	--criando o chão
+	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.1 )
+	floor.name = "floor"
+	floor.anchorX = 0
+	floor.anchorY = 1
+	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
+	physics.addBody( floor, "static", { friction=0.3} )
+	
+	local floorShape = {  -floor.width/2,-floor.height/2, floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,floor.height/2 }
+	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
-	local background = display.newImageRect( "img/screenComponents/bg2.png", screenW, screenH * 0.9 )
+	local background = display.newImageRect( "img/screenComponents/bg3.png", screenW, screenH * 0.9 )
 	print("width" .. screenW .. ", height" .. screenH)
-	background.x, background.y = 0,0
+	background.x, background.y = 0, 0
 	background.anchorX = 0 
 	background.anchorY = 0
 
@@ -67,7 +78,7 @@ function scene:create( event )
 		vectorObjetivo2[i] = objetivo2[1]
 	end
 
-	naoObjetivo = {"champagnes","copos de café","talheres", "pizzas"}
+	naoObjetivo = {"copos de plástico","copos de café","rolos de papel", "blocos de notas"}
 	vectorNaoObjetivo = {}
 	for i=1,35 do
 		vectorNaoObjetivo[i] = naoObjetivo[math.random(1,4)]
@@ -142,17 +153,6 @@ function scene:create( event )
 			vectorGeral = vectorGeralAux
 		end
 	end
-	
-	--criando o chão
-	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.1 )
-	floor.name = "floor"
-	floor.anchorX = 0
-	floor.anchorY = 1
-	floor.x, floor.y = display.screenOriginX, display.actualContentHeight + display.screenOriginY
-	physics.addBody( floor, "static", { friction=0.3} )
-	
-	local floorShape = {  -floor.width/2,-floor.height/2, floor.width/2,-floor.height/2, floor.width/2,floor.height/2, -floor.width/2,floor.height/2 }
-	physics.addBody( floor, "static", { friction=0.3, shape=floorShape } )
 
 	--criando o botão que representará a pontuação
 
@@ -204,7 +204,7 @@ function scene:create( event )
 				pontuacao:setLabel(score)
 
     		else
-    			print( "Lata de " ..  event.target.id .. " coletou " .. event.other.name .." de " .. event.other.id )
+    			--print( "Lata de " ..  event.target.id .. " coletou " .. event.other.name .." de " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
 						print( "Bom trabalho!" )
@@ -328,8 +328,12 @@ function scene:create( event )
   			object.id = VIDRO
 		elseif image == "copos de café" or image == "copos de plástico" then
 			object.id = PLASTICO
-		elseif image == "talheres" then
+		elseif image == "talheres" or image == "compassos" then
 			object.id = METAL
+		elseif image == "lápis" then
+			object.id = MADEIRA
+		elseif image == "rolos de papel" or image == "blocos de notas" then
+			object.id = PAPEL
   		end
 
       	--os objetos estão sendo inseridos em lugares aleatórios da tela
@@ -342,7 +346,7 @@ function scene:create( event )
 		sceneGroup:insert( space )
 
 		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, nil)
+			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Próxima fase >"}, nil)
 			isValidScore = false
 		elseif (iterations < #customVectorOfImage) then
 			currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
@@ -379,7 +383,14 @@ function scene:create( event )
 				--print( "mudar para " .. event.target.id )
 				garbage_default = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
 				garbage_default.id = PLASTICO
-			
+			elseif ( event.target.id == PAPEL )then
+				--print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
+				garbage_default.id = PAPEL
+			elseif ( event.target.id == MADEIRA )then
+				--print( "mudar para " .. event.target.id )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_black.png", 90, 90  )
+				garbage_default.id = MADEIRA
 			end
 	    end
 		
@@ -401,8 +412,8 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo a São Paulo - BR",
-					"Alguém nesta academia tomou uma vitamina de banana. Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
+	native.showAlert("Bem-vindo a Hong Kong - CH",
+					"Alguém nesta escola acabou a lição. Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
@@ -427,24 +438,24 @@ function scene:create( event )
 	buttonChangeColor2.id = PLASTICO
 
 	local buttonChangeColor3 = widget.newButton({
-		defaultFile="img/buttons/oval-br.png",
-		overFile="img/buttons/oval-br-pressed.png",
+		defaultFile="img/buttons/oval-bl.png",
+		overFile="img/buttons/oval-bl-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor3.x = floor.x + buttonWidth*2.5
 	buttonChangeColor3.y = floor.y - floor.height*0.75 + 10
-	buttonChangeColor3.id = ORGANICO
+	buttonChangeColor3.id = MADEIRA
 
 	local buttonChangeColor4 = widget.newButton({
-		defaultFile="img/buttons/oval-g.png",
-		overFile="img/buttons/oval-g-pressed.png",
+		defaultFile="img/buttons/oval-b.png",
+		overFile="img/buttons/oval-b-pressed.png",
 		width=buttonHeight, height=buttonHeight,
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor4.x = floor.x + buttonWidth*3.5
 	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
-	buttonChangeColor4.id = VIDRO
+	buttonChangeColor4.id = PAPEL
 
 	sceneGroup:insert( garbage_default )
 	sceneGroup:insert(space)
@@ -474,12 +485,12 @@ function scene:create( event )
 end
 
 function scene:show( event )
-	print("level2:show()")
+	print("level3:show()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
 	if phase == "will" then
-		print("level2:show():will")
+		print("level3:show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
 		print("show():did")
@@ -492,27 +503,27 @@ function scene:show( event )
 end
 
 function scene:hide( event )
-	print("level2:hide()")
+	print("level3:hide()")
 	local sceneGroup = self.view
 	
 	local phase = event.phase
 	
 	if event.phase == "will" then
-		print("level2:hide():will")
+		print("level3:hide():will")
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 		--physics.stop()
 	elseif phase == "did" then
-		print("level2:hide():did")
+		print("level3:hide():did")
 		-- Called when the scene is now off screen
 	end	
 	
 end
 
 function scene:destroy( event )
-	print("level2:destroy()")
+	print("level3:destroy()")
 
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	-- 

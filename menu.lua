@@ -28,15 +28,18 @@ local total = 300
 
 local object;
 
+--local vectorLevelRandom = { "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8" }
+local vectorLevelRandom = { "level1", "level2"}
+
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
 	audio.stop()
-	total = 0
-	audio.play( music , {loops = -1})
+	total = 0	
 	
 	-- go to level1.lua scene
 	composer.removeScene( "menu" )
-	composer.gotoScene( "level2")
+	sceneToGo = math.random(1,#vectorLevelRandom)
+	composer.gotoScene( "level3" )
 	
 	return true	-- indicates successful touch
 end
@@ -159,7 +162,7 @@ function scene:create( event )
 	local sobre = widget.newButton({
 		defaultFile="img/menuComponents/about.png",
 		width=50, height=50,
-		onEvent = nil
+		onEvent = onAboutBtnRelease
 	})
 	sobre.x = display.contentCenterX - 100
 	sobre.y = display.contentCenterY

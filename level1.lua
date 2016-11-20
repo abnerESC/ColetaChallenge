@@ -15,11 +15,13 @@ local widget = require "widget"
 
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
+local music = audio.loadSound( "audio/music.mp3" )
+audio.play( music , {loops = -1})
 
 --------------------------------------------
 
 local screenW, screenH, halfW = display.actualContentWidth, display.actualContentHeight, display.contentCenterX
-local marginTop = 15
+local marginTop = 30
 
 local VIDRO, PAPEL, METAL, PLASTICO = "vidro", "papel", "metal", "plastico"
 
@@ -41,7 +43,7 @@ function scene:create( event )
 	physics.setDrawMode( "hybrid" )
 
 	local background = display.newImageRect( "img/screenComponents/build.jpg", screenW, screenH * 0.9 )
-	background.x, background.y = display.screenOriginX, display.screenOriginY
+	background.x, background.y = 0,0
 	background.anchorX = 0 
 	background.anchorY = 0
 
@@ -167,7 +169,7 @@ function scene:create( event )
 	space:toFront()
 
 	--criando a lata de lixo
-	local garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90 )
+	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, floor.y - floor.height - 45
 	garbage_default.name = "lata"
 	garbage_default.id = METAL
@@ -359,21 +361,21 @@ function scene:create( event )
 	    if ( "ended" == event.phase ) then
 	        if( event.target.id == VIDRO )then
 				--print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle-g.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_green.png", 90, 90  )
 				garbage_default.id = VIDRO
 			elseif ( event.target.id == METAL )then
 				--print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle-y.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90  )
 				garbage_default.id = METAL
 			
 			elseif ( event.target.id == PAPEL )then
 				--print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle-b.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_blue.png", 90, 90  )
 				garbage_default.id = PAPEL
 			
 			elseif ( event.target.id == PLASTICO )then
 				--print( "mudar para " .. event.target.id )
-				garbage_default = display.newImageRect( "img/screenComponents/recycle-r.png", 90, 90  )
+				garbage_default = display.newImageRect( "img/screenComponents/recycle_red.png", 90, 90  )
 				garbage_default.id = PLASTICO
 			
 			end
@@ -397,8 +399,8 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo ao nível 1",
-					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1] .. "s",
+	native.showAlert("Bem-vindo a Veneza - ITÁLIA",
+					"Alguém anda depressivo por aqui. Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1] .. "s",
 					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
