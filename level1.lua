@@ -74,7 +74,7 @@ function scene:create( event )
 
 	physics.start()
 
-	physics.setDrawMode( "hybrid" )
+	--physics.setDrawMode( "hybrid" )
 
 
 
@@ -88,8 +88,8 @@ function scene:create( event )
 	back.x = screenW - 40 	
 	back.y = 30
 
-	local background = display.newImageRect( "img/screenComponents/build.jpg", screenW, screenH * 0.9 )
-	background.x, background.y = 0,0
+	local background = display.newImageRect( "img/screenComponents/bg1.png", screenW, screenH * 0.9 )
+	background.x, background.y = display.screenOriginX,display.screenOriginY
 	background.anchorX = 0 
 	background.anchorY = 0
 
@@ -394,7 +394,7 @@ function scene:create( event )
 			elseif (iterations < #customVectorOfImage) then
 				currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 			else
-				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}. gotoSameScene)
+				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}, gotoSameScene)
 				isValidScore = false
 			end
   		end
@@ -450,7 +450,7 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo a Veneza - ITÁLIA",
+	native.showAlert("Bem-vindo a París - FRANÇA",
 					"Alguém anda depressivo por aqui. Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 

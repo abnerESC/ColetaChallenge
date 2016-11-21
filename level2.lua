@@ -88,7 +88,7 @@ function scene:create( event )
 
 	local background = display.newImageRect( "img/screenComponents/bg2.png", screenW, screenH * 0.9 )
 	print("width" .. screenW .. ", height" .. screenH)
-	background.x, background.y = 0,0
+	background.x, background.y = display.screenOriginX, display.screenOriginY
 	background.anchorX = 0 
 	background.anchorY = 0
 
@@ -398,7 +398,7 @@ function scene:create( event )
 			elseif (iterations < #customVectorOfImage) then
 				currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 			else
-				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}. gotoSameScene)
+				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}, gotoSameScene)
 				isValidScore = false
 			end
 		end
@@ -454,7 +454,7 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo a São Paulo - BR",
+	native.showAlert("Bem-vindo a São Paulo - BRASIL",
 					"Alguém nesta academia tomou uma vitamina de banana. Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 

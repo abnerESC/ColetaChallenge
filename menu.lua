@@ -31,7 +31,7 @@ local object;
 local iteradorBuilder, iteradorBuilder2, iteradorCloud
 
 --local vectorLevelRandom = { "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8" }
-local vectorLevelRandom = { "level1", "level2"}
+local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
 
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
@@ -42,8 +42,8 @@ local function onPlayBtnRelease()
 	
 	-- go to level1.lua scene
 	composer.removeScene( "menu" )
-	sceneToGo = math.random(1,#vectorLevelRandom)
-	composer.gotoScene( "level3" )
+	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
+	composer.gotoScene( sceneToGo )
 	
 	return true	-- indicates successful touch
 end
@@ -57,8 +57,10 @@ local function onAboutBtnRelease()
 end
 
 local function onLevelBtnRelease()
+	possibleCreate = false
+	iteradorBuilder, iteradorBuilder2, iteradorCloud = 100,100,200
 	composer.gotoScene( "levels", "fade", 500 )
-	total = 0
+	--total = 0
 	
 	return true	-- indicates successful touch
 end
@@ -133,11 +135,11 @@ function scene:create( event )
 
 		iteradorCloud = iteradorCloud + 1
 
-	 	cloud1.x = cloud1.x - 1
-	 	cloud3.x = cloud3.x + 1
-		if (iteradorCloud < 200) then
+	 	if (iteradorCloud < 200) then
+	 		cloud1.x = cloud1.x - 1
+		 	cloud3.x = cloud3.x + 1
 			timer.performWithDelay(0, cloudAnimation);
-		end
+	 	end
 	end
 
 	builderAnimation()
@@ -161,7 +163,7 @@ function scene:create( event )
 	local fases = widget.newButton({
 		defaultFile="img/menuComponents/list.png",
 		width=50, height=50,
-		onEvent = nil
+		onEvent = onLevelBtnRelease
 	})
 	fases.x = display.contentCenterX + 100
 	fases.y = display.contentCenterY

@@ -99,7 +99,7 @@ function scene:create( event )
 
 	local background = display.newImageRect( "img/screenComponents/bg3.png", screenW, screenH * 0.9 )
 	print("width" .. screenW .. ", height" .. screenH)
-	background.x, background.y = 0, 0
+	background.x, background.y = display.screenOriginX, display.screenOriginY
 	background.anchorX = 0 
 	background.anchorY = 0
 
@@ -460,7 +460,7 @@ function scene:create( event )
 		currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
 	end
 
-	native.showAlert("Bem-vindo a Hong Kong - CH",
+	native.showAlert("Bem-vindo a Xangai - CHINA",
 					"Alguém nesta escola acabou a lição. Você precisará coletar " .. objetivo1[2] .. " " .. objetivo1[1] .. " e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 
