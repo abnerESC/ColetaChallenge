@@ -142,7 +142,7 @@ function scene:create( event )
 	})
 	organico.x = margemDireita
 	organico.y = metal.y + proporcaoDistancia
-	organico:setLabel("Oragânico")
+	organico:setLabel("Orgânico")
 
 	pizza = display.newImageRect( "img/objects/pizzas.png", dimensoesObjects, dimensoesObjects )
 	pizza.x, pizza.y = organico.x + margemDireitaEntreObjetos, organico.y

@@ -25,8 +25,10 @@ local music = audio.loadSound( "audio/music.mp3")
 -- forward declarations and other locals
 local playBtn
 local total = 300
+local possibleCreate = true
 
 local object;
+local iteradorBuilder, iteradorBuilder2, iteradorCloud
 
 --local vectorLevelRandom = { "level1", "level2", "level3", "level4", "level5", "level6", "level7", "level8" }
 local vectorLevelRandom = { "level1", "level2"}
@@ -34,17 +36,20 @@ local vectorLevelRandom = { "level1", "level2"}
 -- 'onRelease' event listener for playBtn
 local function onPlayBtnRelease()
 	audio.stop()
-	total = 0	
+	total = 0
+	iteradorBuilder, iteradorBuilder2, iteradorCloud = 100,100,200
+	possibleCreate = false
 	
 	-- go to level1.lua scene
 	composer.removeScene( "menu" )
 	sceneToGo = math.random(1,#vectorLevelRandom)
-	composer.gotoScene( "level1" )
+	composer.gotoScene( "level3" )
 	
 	return true	-- indicates successful touch
 end
 
 local function onAboutBtnRelease()
+	possibleCreate = false
 	composer.gotoScene( "about", "fade", 500 )
 	--total = 0
 	
@@ -63,8 +68,9 @@ function scene:create( event )
 	local sceneGroup = self.view
 
 	physics.start()
+
 	--physics.pause()
-	physics.setDrawMode( "normal" )
+	--physics.setDrawMode( "hybrid" )
 
 	-- Called when the scene's view does not exist.
 	-- 
@@ -95,7 +101,7 @@ function scene:create( event )
 	cloud3 = display.newImageRect( "img/menuComponents/cloud3.png", 150, 75 )
 	cloud3.x, cloud3.y = logo.x + logo.width / 2, logo.y - 25
 
-	local iteradorBuilder = 0
+	iteradorBuilder = 0
 
 	local function builderAnimation()
 
@@ -108,7 +114,7 @@ function scene:create( event )
 		end
 	end
 
-	local iteradorBuilder2 = 0
+	iteradorBuilder2 = 0
 
 	local function builder2Animation()
 
@@ -121,7 +127,7 @@ function scene:create( event )
 		end
 	end
 
-	local iteradorCloud = 0
+	iteradorCloud = 0
 
 	local function cloudAnimation()
 
@@ -187,8 +193,8 @@ function scene:create( event )
 	timer.performWithDelay(0, createObjectsWithDelay);
 
 	local function createObjectsWithDelay()
-      	iterations = iterations + 1
-		if (iterations < total) then
+		if (possibleCreate == true) then
+      		iterations = iterations + 1
 
 	      	image = customVectorOfImage[math.random(1,#customVectorOfImage)]
 
@@ -204,6 +210,8 @@ function scene:create( event )
 			physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
 			sceneGroup:insert( object )
 			objectTimer = timer.performWithDelay(time, createObjectsWithDelay);
+		else
+			objectTimer = timer.performWithDelay(time, createObjectsWithDelay);
 		end
 	end
 	createObjectsWithDelay()
@@ -218,28 +226,32 @@ function scene:show( event )
 	local phase = event.phase
 	
 	if phase == "will" then
+		print("menu:show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
+		print("menu:show():did")
 		-- Called when the scene is now on screen
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
 		physics.start()
+		possibleCreate = true
 	end	
 end
 
 function scene:hide( event )
-	print("menu:hide()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
 	if event.phase == "will" then
+		print("menu:hide():will")
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
 		--physics.stop()
 	elseif phase == "did" then
+		print("menu:hide():did")
 		-- Called when the scene is now off screen
 	end	
 end

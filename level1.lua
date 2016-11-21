@@ -16,7 +16,7 @@ local widget = require "widget"
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
 local music = audio.loadSound( "audio/music.mp3" )
-audio.play( music , {loops = -1})
+--audio.play( music , {loops = -1})
 
 --------------------------------------------
 
@@ -27,17 +27,45 @@ local VIDRO, PAPEL, METAL, PLASTICO = "vidro", "papel", "metal", "plastico"
 
 local isValidScore = true
 local score = 0
+local possibleCreate = true
 
 --OBJETIVO DA FASE
 local objetivo1 = { "rolos de papel", 9, 0 }
 local objetivo2 = { "cervejas", 6, 0 }
 
 local function onBackPressed()
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level1" )
+
 	composer.gotoScene( "menu", "fade", 500 )
 	
 	return true	-- indicates successful touch
 end
 
+local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
+local function gotoSceneRandom(  )
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level3" )
+
+	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
+
+	composer.gotoScene( sceneToGo, "fade", 500 )
+	
+	return true
+end
+
+local function gotoSameScene()
+
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level3" )
+
+	composer.gotoScene( "level3", "fade", 500 )
+
+	return true
+end
 
 function scene:create( event )
 	print("leve1:create()")
@@ -47,6 +75,8 @@ function scene:create( event )
 	physics.start()
 
 	physics.setDrawMode( "hybrid" )
+
+
 
 	local back = widget.newButton({
 		defaultFile="img/buttons/back-level.png",
@@ -73,18 +103,18 @@ function scene:create( event )
 	--criando vetores com as imagens (path das imagens) que vão aparecer na tela
 
 	vectorObjetivo1 = {}
-	for i=1,objetivo1[2] do
+	for i=1,objetivo1[2] + 3 do
 		vectorObjetivo1[i] = objetivo1[1]
 	end
 
 	vectorObjetivo2 = {}
-	for i=1,objetivo2[2] do
+	for i=1,objetivo2[2] + 3 do
 		vectorObjetivo2[i] = objetivo2[1]
 	end
 
 	naoObjetivo = {"champagnes","copos de café","talheres", "copos de plástico"}
 	vectorNaoObjetivo = {}
-	for i=1,35 do
+	for i=1,29 do
 		vectorNaoObjetivo[i] = naoObjetivo[math.random(1,4)]
 	end
 
@@ -187,7 +217,7 @@ function scene:create( event )
 	--criando a lata de lixo
 	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, floor.y - floor.height - 45
-	garbage_default.name = "lata"
+	garbage_default.name = "garbage_default"
 	garbage_default.id = METAL
 
 	--criando formas que vão ser adicionadas a lata de lixo
@@ -201,7 +231,6 @@ function scene:create( event )
 	physics.addBody( garbage_default, "static",  { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage})
 
 	local function onLocalCollision( self, event )
-
 
 		if ( event.phase == "began" and isValidScore == true ) then
 			if ( event.target.name == "floor" ) then
@@ -217,8 +246,9 @@ function scene:create( event )
 				end
 				pontuacao:setLabel(score)
 
-    		else
-    			event.target:toFront()
+    		elseif ( event.target.name == "garbage_default" ) then
+	
+				event.target:toFront()
     			--print( "Lata de " ..  event.target.id .. " coletou um " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
@@ -322,48 +352,52 @@ function scene:create( event )
 	local iterations = 0
 
 	local function createObjectsWithDelay()
-      	iterations = iterations + 1
 
-  		image = customVectorOfImage[iterations]
+  		if (possibleCreate == true) then
+      		iterations = iterations + 1
 
-      	imagePath = "img/objects/" .. image .. ".png"
+			image = customVectorOfImage[iterations]
 
-      	local object = display.newImageRect( imagePath, 45, 45 )
-      	object.name = image
-		object:toBack()
+	      	imagePath = "img/objects/" .. image .. ".png"
 
-      	if image == "rolos de papel" then
-      		object.id = PAPEL
-  		elseif image == "cervejas" or image == "champagnes" then
-  			object.id = VIDRO
-		elseif image == "copos de plástico" or image == "copos de café" then
-			object.id = PLASTICO
-		elseif image == "talheres" then
-			object.id = METAL
+	      	local object = display.newImageRect( imagePath, 45, 45 )
+	      	object.name = image
+			object:toBack()
+
+	      	if image == "rolos de papel" then
+	      		object.id = PAPEL
+	  		elseif image == "cervejas" or image == "champagnes" then
+	  			object.id = VIDRO
+			elseif image == "copos de plástico" or image == "copos de café" then
+				object.id = PLASTICO
+			elseif image == "talheres" then
+				object.id = METAL
+	  		end
+
+	      	--os objetos estão sendo inseridos em lugares aleatórios da tela
+			object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
+			--aumentando a gravidade gradativamente
+			physics.setGravity(0, 2 + iterations*0,2)
+			physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
+			object:toBack()
+			sceneGroup:insert( object )
+			sceneGroup:insert( garbage_default )
+			sceneGroup:insert( space )
+			sceneGroup:insert( back )
+			sceneGroup:insert( pontuacao )
+			sceneGroup:insert( buttonObjetivo2 )
+			sceneGroup:insert( buttonObjetivo1 )
+
+			if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
+				native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejass", {"Próxima fase >"}, gotoSceneRandom)
+				isValidScore = false
+			elseif (iterations < #customVectorOfImage) then
+				currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
+			else
+				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}. gotoSameScene)
+				isValidScore = false
+			end
   		end
-
-      	--os objetos estão sendo inseridos em lugares aleatórios da tela
-		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
-		--aumentando a gravidade gradativamente
-		physics.setGravity(0, 2 + iterations*0,2)
-		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
-		object:toBack()
-		sceneGroup:insert( object )
-		sceneGroup:insert( space )
-		sceneGroup:insert( back )
-		sceneGroup:insert( pontuacao )
-		sceneGroup:insert( buttonObjetivo2 )
-		sceneGroup:insert( buttonObjetivo1 )
-
-		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejass", {"Próxima fase >"}, nil)
-			isValidScore = false
-		elseif (iterations < #customVectorOfImage) then
-			currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
-		else
-			native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"})
-			isValidScore = false
-		end
 	end
 	--variávei usáveis
 	local buttonWidth = floor.width/4
@@ -398,6 +432,7 @@ function scene:create( event )
 	    end
 		
 		garbage_default.x, garbage_default.y = x, y
+		garbage_default.name = "garbage_default"
 		
 		garbage_default.collision = onLocalCollision
 		garbage_default:toFront()
@@ -416,7 +451,7 @@ function scene:create( event )
 	end
 
 	native.showAlert("Bem-vindo a Veneza - ITÁLIA",
-					"Alguém anda depressivo por aqui. Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1] .. "s",
+					"Alguém anda depressivo por aqui. Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
 					{"Vamos coletar"}, initLevel)
 
 	--BOTÕES DE MUDANÇA DE COR DA LATA
@@ -427,7 +462,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor1.x = floor.x + buttonWidth*0.5
-	buttonChangeColor1.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor1.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor1.id = METAL
 
 	local buttonChangeColor2 = widget.newButton({
@@ -437,7 +472,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor2.x = floor.x + buttonWidth*1.5
-	buttonChangeColor2.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor2.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor2.id = PLASTICO
 
 	local buttonChangeColor3 = widget.newButton({
@@ -447,7 +482,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor3.x = floor.x + buttonWidth*2.5
-	buttonChangeColor3.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor3.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor3.id = PAPEL
 
 	local buttonChangeColor4 = widget.newButton({
@@ -457,7 +492,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor4.x = floor.x + buttonWidth*3.5
-	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor4.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor4.id = VIDRO
 
 	--BOTÕES COM OBJETIVO DE FASE
@@ -485,6 +520,7 @@ function scene:create( event )
 	
 	--inserindo objetos na tela
 	sceneGroup:insert( background )
+	sceneGroup:insert( garbage_default )
 	sceneGroup:insert( space )
 	sceneGroup:insert( floor)
 	sceneGroup:insert( back )
@@ -498,7 +534,7 @@ function scene:create( event )
 end
 
 function scene:show( event )
-	print("leve1:show()")
+	--print("leve1:show()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
@@ -506,17 +542,18 @@ function scene:show( event )
 		print("leve1:show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
-		print("show():did")
+		print("leve1:show():did")
 		-- Called when the scene is now on screen
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		--physics.start()
+		physics.start()
+		audio.play( music, { loops = -1 })
 	end
 end
 
 function scene:hide( event )
-	print("leve1:hide()")
+	--print("leve1:hide()")
 	local sceneGroup = self.view
 	
 	local phase = event.phase
@@ -527,11 +564,12 @@ function scene:hide( event )
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
-		--physics.stop()
+		physics.stop()
+		audio.stop()
 	elseif phase == "did" then
 		print("leve1:hide():did")
 		-- Called when the scene is now off screen
-	end	
+	end
 	
 end
 
@@ -543,6 +581,7 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	local sceneGroup = self.view
+	physics.stop()
 	
 	package.loaded[physics] = nil
 	physics = nil

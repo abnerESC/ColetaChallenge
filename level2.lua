@@ -26,12 +26,46 @@ local marginTop = 30
 local VIDRO, PAPEL, METAL, PLASTICO, ORGANICO = "vidro", "papel", "metal", "plastico", "organico"
 
 local isValidScore = true
-local score = 0;
+local score = 0
+local possibleCreate = true
 
 --OBJETIVO DA FASE
 local objetivo1 = { "cascas de banana", 4, 0 }
 local objetivo2 = { "copos de plástico", 6, 0 }
 
+local function onBackPressed()
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level2" )
+
+	composer.gotoScene( "menu", "fade", 500 )
+	
+	return true	-- indicates successful touch
+end
+
+local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
+local function gotoSceneRandom(  )
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level3" )
+
+	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
+
+	composer.gotoScene( sceneToGo, "fade", 500 )
+	
+	return true
+end
+
+local function gotoSameScene()
+
+	audio.stop()
+	possibleCreate = false
+	composer.removeScene( "level3" )
+
+	composer.gotoScene( "level3", "fade", 500 )
+
+	return true
+end
 
 function scene:create( event )
 	print("level2:create()")
@@ -41,6 +75,16 @@ function scene:create( event )
 	physics.start()
 
 	--physics.setDrawMode( "hybrid" )
+
+	local back = widget.newButton({
+		defaultFile="img/buttons/back-level.png",
+		width=30, height=30,
+		onEvent = onBackPressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	back.x = screenW - 40 	
+	back.y = 30
 
 	local background = display.newImageRect( "img/screenComponents/bg2.png", screenW, screenH * 0.9 )
 	print("width" .. screenW .. ", height" .. screenH)
@@ -58,18 +102,18 @@ function scene:create( event )
 	--criando vetores com as imagens (path das imagens) que vão aparecer na tela
 
 	vectorObjetivo1 = {}
-	for i=1,objetivo1[2] do
+	for i=1,objetivo1[2] + 3 do
 		vectorObjetivo1[i] = objetivo1[1]
 	end
 
 	vectorObjetivo2 = {}
-	for i=1,objetivo2[2] do
+	for i=1,objetivo2[2] + 3 do
 		vectorObjetivo2[i] = objetivo2[1]
 	end
 
-	naoObjetivo = {"champagnes","copos de café","talheres", "pizzas"}
+	naoObjetivo = {"champagnes","copos de café","côcos", "pizzas", "bananas"}
 	vectorNaoObjetivo = {}
-	for i=1,35 do
+	for i=1,34 do
 		vectorNaoObjetivo[i] = naoObjetivo[math.random(1,4)]
 	end
 
@@ -172,7 +216,7 @@ function scene:create( event )
 	--criando a lata de lixo
 	local garbage_default = display.newImageRect( "img/screenComponents/recycle_yellow.png", 90, 90 )
 	garbage_default.x, garbage_default.y = display.contentCenterX, floor.y - floor.height - 45
-	garbage_default.name = "lata"
+	garbage_default.name = "garbage_default"
 	garbage_default.id = METAL
 
 	--criando formas que vão ser adicionadas a lata de lixo
@@ -186,8 +230,6 @@ function scene:create( event )
 	physics.addBody( garbage_default, "static",  { shape = shapeCollision }, { shape = shapeRightGarbage  }, { shape = shapeLeftGarbage }, { shape = shapeBottonGarbage})
 
 	local function onLocalCollision( self, event )
-	
-		event.target:toFront()
 
 		if ( event.phase == "began" and isValidScore == true ) then
 			if ( event.target.name == "floor" ) then
@@ -203,8 +245,10 @@ function scene:create( event )
 				end
 				pontuacao:setLabel(score)
 
-    		else
-    			print( "Lata de " ..  event.target.id .. " coletou " .. event.other.name .." de " .. event.other.id )
+    		elseif ( event.target.name == "garbage_default" ) then
+	
+				event.target:toFront()
+    			--print( "Lata de " ..  event.target.id .. " coletou " .. event.other.name .." de " .. event.other.id )
 				if( event.selfElement == 1 ) then
 					if ( event.target.id == event.other.id ) then
 						print( "Bom trabalho!" )
@@ -311,44 +355,52 @@ function scene:create( event )
 	local currentTimer = nil;
 
 	local function createObjectsWithDelay()
-      	iterations = iterations + 1
 
-      	image = customVectorOfImage[iterations]
+  		if (possibleCreate == true) then
+	      	iterations = iterations + 1
 
-      	imagePath = "img/objects/" .. image .. ".png"
+	      	image = customVectorOfImage[iterations]
 
-      	local object = display.newImageRect( imagePath, 45, 45 )
-      	object.name = image
-		object:toBack()
-		--print("Criando " .. object.name .. " de ")
+	      	imagePath = "img/objects/" .. image .. ".png"
 
-      	if image == "cascas de banana" or image == "bananas" or image == "pizzas" then
-      		object.id = ORGANICO
-  		elseif image == "cervejas" or image == "champagnes" then
-  			object.id = VIDRO
-		elseif image == "copos de café" or image == "copos de plástico" then
-			object.id = PLASTICO
-		elseif image == "talheres" then
-			object.id = METAL
-  		end
+	      	local object = display.newImageRect( imagePath, 45, 45 )
+	      	object.name = image
+			object:toBack()
+			--print("Criando " .. object.name .. " de ")
 
-      	--os objetos estão sendo inseridos em lugares aleatórios da tela
-		object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
-		--aumentando a gravidade gradativamente
-		physics.setGravity(0, 2 + iterations*0,2)
-		physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
-		object:toBack()
-		sceneGroup:insert( object )
-		sceneGroup:insert( space )
+	      	if image == "cascas de banana" or image == "bananas" or image == "pizzas" then
+	      		object.id = ORGANICO
+	  		elseif image == "cervejas" or image == "champagnes" then
+	  			object.id = VIDRO
+			elseif image == "copos de café" or image == "copos de plástico" then
+				object.id = PLASTICO
+			elseif image == "talheres" then
+				object.id = METAL
+	  		end
 
-		if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-			native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, nil)
-			isValidScore = false
-		elseif (iterations < #customVectorOfImage) then
-			currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
-		else
-			native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"})
-			isValidScore = false
+	      	--os objetos estão sendo inseridos em lugares aleatórios da tela
+			object.x, object.y = math.random(object.width/2, display.actualContentWidth - object.width/2), -45
+			--aumentando a gravidade gradativamente
+			physics.setGravity(0, 2 + iterations*0,2)
+			physics.addBody( object, { density=9.0, friction=1.0, bounce=0.3 } )
+			object:toBack()
+			sceneGroup:insert( object )
+			sceneGroup:insert( garbage_default )
+			sceneGroup:insert( space )
+			sceneGroup:insert( back )
+			sceneGroup:insert( pontuacao )
+			sceneGroup:insert( buttonObjetivo2 )
+			sceneGroup:insert( buttonObjetivo1 )
+
+			if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
+				native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, gotoSceneRandom)
+				isValidScore = false
+			elseif (iterations < #customVectorOfImage) then
+				currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
+			else
+				native.showAlert("Você perdeu com ".. score .. " pontos.", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Tentar novamente"}. gotoSameScene)
+				isValidScore = false
+			end
 		end
 	end
 	--variávei usáveis
@@ -384,6 +436,7 @@ function scene:create( event )
 	    end
 		
 		garbage_default.x, garbage_default.y = x, y
+		garbage_default.name = "garbage_default"
 		
 		garbage_default.collision = onLocalCollision
 		garbage_default:toFront()
@@ -413,7 +466,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor1.x = floor.x + buttonWidth*0.5
-	buttonChangeColor1.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor1.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor1.id = METAL
 
 	local buttonChangeColor2 = widget.newButton({
@@ -423,7 +476,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor2.x = floor.x + buttonWidth*1.5
-	buttonChangeColor2.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor2.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor2.id = PLASTICO
 
 	local buttonChangeColor3 = widget.newButton({
@@ -433,7 +486,7 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor3.x = floor.x + buttonWidth*2.5
-	buttonChangeColor3.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor3.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor3.id = ORGANICO
 
 	local buttonChangeColor4 = widget.newButton({
@@ -443,11 +496,8 @@ function scene:create( event )
 		onEvent = handleButtonEvent
 	})
 	buttonChangeColor4.x = floor.x + buttonWidth*3.5
-	buttonChangeColor4.y = floor.y - floor.height*0.75 + 10
+	buttonChangeColor4.y = floor.y - floor.height*0.75 + 15
 	buttonChangeColor4.id = VIDRO
-
-	sceneGroup:insert( garbage_default )
-	sceneGroup:insert(space)
 
 	--BOTÕES COM OBJETIVO DE FASE
 	buttonObjetivo1 = widget.newButton({
@@ -471,6 +521,20 @@ function scene:create( event )
 	buttonObjetivo2.x = buttonObjetivo1.x + 60
 	buttonObjetivo2.y = space.y
 	buttonObjetivo2:setLabel(objetivo2[3] .. "/" .. objetivo2[2])
+
+
+	sceneGroup:insert( background )
+	sceneGroup:insert( garbage_default )
+	sceneGroup:insert( space )
+	sceneGroup:insert( floor)
+	sceneGroup:insert( back )
+	sceneGroup:insert( pontuacao )
+	sceneGroup:insert( buttonObjetivo2 )
+	sceneGroup:insert( buttonObjetivo1 )
+	sceneGroup:insert( buttonChangeColor1 )
+	sceneGroup:insert( buttonChangeColor2 )
+	sceneGroup:insert( buttonChangeColor3 )
+	sceneGroup:insert( buttonChangeColor4 )
 end
 
 function scene:show( event )
@@ -519,6 +583,7 @@ function scene:destroy( event )
 	-- INSERT code here to cleanup the scene
 	-- e.g. remove display objects, remove touch listeners, save state, etc.
 	local sceneGroup = self.view
+	physics.stop()
 	
 	package.loaded[physics] = nil
 	physics = nil
