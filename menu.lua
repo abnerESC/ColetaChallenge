@@ -43,7 +43,7 @@ local function onPlayBtnRelease()
 	-- go to level1.lua scene
 	composer.removeScene( "menu" )
 	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
-	composer.gotoScene( sceneToGo )
+	composer.gotoScene( "level1" )
 	
 	return true	-- indicates successful touch
 end
@@ -72,7 +72,7 @@ function scene:create( event )
 	physics.start()
 
 	--physics.pause()
-	--physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "hybrid" )
 
 	-- Called when the scene's view does not exist.
 	-- 

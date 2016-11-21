@@ -16,7 +16,7 @@ local widget = require "widget"
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
 local music = audio.loadSound( "audio/chinese.mp3" )
---audio.play( music , {loops = -1})
+audio.play( music , {loops = -1})
 
 --------------------------------------------
 
@@ -43,11 +43,17 @@ local function onBackPressed()
 	return true	-- indicates successful touch
 end
 
+local function onPausePressed(  )
+	native.showAlert("Não se esqueça",
+					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
+					{"Vamos coletar"}, nil)
+end
+
 local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
 local function gotoSceneRandom(  )
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level4" )
 
 	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
 
@@ -60,9 +66,9 @@ local function gotoSameScene()
 
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level4" )
 
-	composer.gotoScene( "level3", "fade", 500 )
+	composer.gotoScene( "level4", "fade", 500 )
 
 	return true
 end
@@ -105,11 +111,15 @@ function scene:create( event )
 
 	local function fishAnimation()
 
-		iteradorFish = iteradorFish + 1
+		if ( possibleCreate == true ) then
+			iteradorFish = iteradorFish + 1
 
-	 	fish.x = fish.x + 1
-		if (iteradorFish < 2000) then
-			timer.performWithDelay(100, fishAnimation);
+		 	fish.x = fish.x + 1
+			if (iteradorFish < 2000) then
+				timer.performWithDelay(100, fishAnimation);
+			else
+
+			end
 		end
 	end
 
@@ -117,7 +127,7 @@ function scene:create( event )
 
 	---------------------------------------------------------
 
-	--physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "hybrid" )
 
 	local back = widget.newButton({
 		defaultFile="img/buttons/back-level.png",
@@ -128,6 +138,16 @@ function scene:create( event )
 	})
 	back.x = screenW - 40 	
 	back.y = 30
+
+	local pause = widget.newButton({
+		defaultFile="img/buttons/pause.png",
+		width=30, height=30,
+		--onEvent = onPausePressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	pause.x = back.x - 40 	
+	pause.y = back.y
 	
 	--criando o chão
 	local floor = display.newImageRect( "img/screenComponents/floor2.png", screenW, screenH * 0.1 )
@@ -430,6 +450,7 @@ function scene:create( event )
 			sceneGroup:insert( garbage_default )
 			sceneGroup:insert( space )
 			sceneGroup:insert( back )
+			sceneGroup:insert( pause )
 			sceneGroup:insert( pontuacao )
 			sceneGroup:insert( buttonObjetivo2 )
 			sceneGroup:insert( buttonObjetivo1 )
@@ -585,6 +606,7 @@ function scene:create( event )
 	sceneGroup:insert( buttonChangeColor2 )
 	sceneGroup:insert( buttonChangeColor3 )
 	sceneGroup:insert( buttonChangeColor4 )
+	sceneGroup:insert( pause )
 end
 
 function scene:show( event )
@@ -601,8 +623,7 @@ function scene:show( event )
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		physics.start()
-		audio.play( music, { loops = -1 })
+		--physics.start()
 	end
 end
 

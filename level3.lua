@@ -16,7 +16,7 @@ local widget = require "widget"
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
 local music = audio.loadSound( "audio/chinese.mp3" )
---audio.play( music , {loops = -1})
+audio.play( music , {loops = -1})
 
 --------------------------------------------
 
@@ -41,6 +41,12 @@ local function onBackPressed()
 	composer.gotoScene( "menu", "fade", 500 )
 	
 	return true	-- indicates successful touch
+end
+
+local function onPausePressed(  )
+	native.showAlert("Não se esqueça",
+					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
+					{"Vamos coletar"}, nil)
 end
 
 local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
@@ -74,7 +80,7 @@ function scene:create( event )
 
 	physics.start()
 
-	--physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "hybrid" )
 
 	local back = widget.newButton({
 		defaultFile="img/buttons/back-level.png",
@@ -85,6 +91,16 @@ function scene:create( event )
 	})
 	back.x = screenW - 40 	
 	back.y = 30
+
+	local pause = widget.newButton({
+		defaultFile="img/buttons/pause.png",
+		width=30, height=30,
+		--onEvent = onPausePressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	pause.x = back.x - 40 	
+	pause.y = back.y
 	
 	--criando o chão
 	local floor = display.newImageRect( "img/screenComponents/floor.png", screenW, screenH * 0.1 )
@@ -387,6 +403,7 @@ function scene:create( event )
 			sceneGroup:insert( garbage_default )
 			sceneGroup:insert( space )
 			sceneGroup:insert( back )
+			sceneGroup:insert( pause )
 			sceneGroup:insert( pontuacao )
 			sceneGroup:insert( buttonObjetivo2 )
 			sceneGroup:insert( buttonObjetivo1 )
@@ -534,6 +551,7 @@ function scene:create( event )
 	sceneGroup:insert( space )
 	sceneGroup:insert( floor)
 	sceneGroup:insert( back )
+	sceneGroup:insert( pause )
 	sceneGroup:insert( pontuacao )
 	sceneGroup:insert( buttonObjetivo2 )
 	sceneGroup:insert( buttonObjetivo1 )
@@ -557,8 +575,7 @@ function scene:show( event )
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		physics.start()
-		audio.play( music, { loops = -1 })
+		--physics.start()
 	end
 end
 

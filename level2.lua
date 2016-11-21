@@ -30,8 +30,8 @@ local score = 0
 local possibleCreate = true
 
 --OBJETIVO DA FASE
-local objetivo1 = { "cascas de banana", 4, 0 }
-local objetivo2 = { "copos de plástico", 6, 0 }
+local objetivo1 = { "cascas de banana", 6, 0 }
+local objetivo2 = { "copos de plástico", 4, 0 }
 
 local function onBackPressed()
 	audio.stop()
@@ -43,11 +43,17 @@ local function onBackPressed()
 	return true	-- indicates successful touch
 end
 
+local function onPausePressed(  )
+	native.showAlert("Não se esqueça",
+					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
+					{"Vamos coletar"}, nil)
+end
+
 local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
 local function gotoSceneRandom(  )
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level2" )
 
 	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
 
@@ -60,9 +66,9 @@ local function gotoSameScene()
 
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level2" )
 
-	composer.gotoScene( "level3", "fade", 500 )
+	composer.gotoScene( "level2", "fade", 500 )
 
 	return true
 end
@@ -74,7 +80,7 @@ function scene:create( event )
 
 	physics.start()
 
-	--physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "hybrid" )
 
 	local back = widget.newButton({
 		defaultFile="img/buttons/back-level.png",
@@ -85,6 +91,16 @@ function scene:create( event )
 	})
 	back.x = screenW - 40 	
 	back.y = 30
+
+	local pause = widget.newButton({
+		defaultFile="img/buttons/pause.png",
+		width=30, height=30,
+		--onEvent = onPausePressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	pause.x = back.x - 40 	
+	pause.y = back.y
 
 	local background = display.newImageRect( "img/screenComponents/bg2.png", screenW, screenH * 0.9 )
 	print("width" .. screenW .. ", height" .. screenH)
@@ -388,12 +404,13 @@ function scene:create( event )
 			sceneGroup:insert( garbage_default )
 			sceneGroup:insert( space )
 			sceneGroup:insert( back )
+			sceneGroup:insert( pause )
 			sceneGroup:insert( pontuacao )
 			sceneGroup:insert( buttonObjetivo2 )
 			sceneGroup:insert( buttonObjetivo1 )
 
 			if ( objetivo1[3] >= objetivo1[2] and objetivo2[3] >= objetivo2[2] ) then
-				native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " rolos de papel e " .. objetivo2[3] .. " cervejas", {"Próxima fase >"}, gotoSceneRandom)
+				native.showAlert("Parabéns!!!! Você ganhou com ".. score .. " pontos!!!", "Você coletou " .. objetivo1[3] .. " " .. objetivo1[1] .. " e " .. objetivo2[3] .. " " .. objetivo2[1], {"Próxima fase >"}, gotoSceneRandom)
 				isValidScore = false
 			elseif (iterations < #customVectorOfImage) then
 				currentTimer = timer.performWithDelay(time, createObjectsWithDelay);
@@ -528,6 +545,7 @@ function scene:create( event )
 	sceneGroup:insert( space )
 	sceneGroup:insert( floor)
 	sceneGroup:insert( back )
+	sceneGroup:insert( pause )
 	sceneGroup:insert( pontuacao )
 	sceneGroup:insert( buttonObjetivo2 )
 	sceneGroup:insert( buttonObjetivo1 )

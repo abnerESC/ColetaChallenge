@@ -16,7 +16,7 @@ local widget = require "widget"
 local scoreSound = audio.loadSound( "audio/score.mp3" )
 local errorSound = audio.loadSound( "audio/error1.wav" )
 local music = audio.loadSound( "audio/music.mp3" )
---audio.play( music , {loops = -1})
+audio.play( music , {loops = -1})
 
 --------------------------------------------
 
@@ -30,8 +30,8 @@ local score = 0
 local possibleCreate = true
 
 --OBJETIVO DA FASE
-local objetivo1 = { "rolos de papel", 9, 0 }
-local objetivo2 = { "cervejas", 6, 0 }
+local objetivo1 = { "rolos de papel", 8, 0 }
+local objetivo2 = { "cervejas", 7, 0 }
 
 local function onBackPressed()
 	audio.stop()
@@ -43,11 +43,24 @@ local function onBackPressed()
 	return true	-- indicates successful touch
 end
 
+local function startPhysics( ... )
+	possibleCreate = true
+	physics.start()
+end
+
+local function onPausePressed(  )
+	possibleCreate = false
+	physics.stop()
+	native.showAlert("Não se esqueça",
+					"Você precisará coletar " .. objetivo1[2] .. " rolos de papel e " .. objetivo2[2] .. " " .. objetivo2[1],
+					{"Vamos coletar"}, startPhysics)
+end
+
 local vectorLevelRandom = { "level1", "level2", "level3", "level4"}
 local function gotoSceneRandom(  )
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level1" )
 
 	local sceneToGo = vectorLevelRandom[math.random(1,#vectorLevelRandom)]
 
@@ -60,21 +73,21 @@ local function gotoSameScene()
 
 	audio.stop()
 	possibleCreate = false
-	composer.removeScene( "level3" )
+	composer.removeScene( "level1" )
 
-	composer.gotoScene( "level3", "fade", 500 )
+	composer.gotoScene( "level1", "fade", 500 )
 
 	return true
 end
 
 function scene:create( event )
-	print("leve1:create()")
+	print("level1:create()")
 
 	local sceneGroup = self.view
 
 	physics.start()
 
-	--physics.setDrawMode( "hybrid" )
+	physics.setDrawMode( "hybrid" )
 
 
 
@@ -87,6 +100,16 @@ function scene:create( event )
 	})
 	back.x = screenW - 40 	
 	back.y = 30
+
+	local pause = widget.newButton({
+		defaultFile="img/buttons/pause.png",
+		width=30, height=30,
+		--onEvent = onPausePressed,
+		labelColor = {default={ 1, 1, 1 }},
+		labelXOffset = -35
+	})
+	pause.x = back.x - 40 	
+	pause.y = back.y
 
 	local background = display.newImageRect( "img/screenComponents/bg1.png", screenW, screenH * 0.9 )
 	background.x, background.y = display.screenOriginX,display.screenOriginY
@@ -384,6 +407,7 @@ function scene:create( event )
 			sceneGroup:insert( garbage_default )
 			sceneGroup:insert( space )
 			sceneGroup:insert( back )
+			sceneGroup:insert( pause )
 			sceneGroup:insert( pontuacao )
 			sceneGroup:insert( buttonObjetivo2 )
 			sceneGroup:insert( buttonObjetivo1 )
@@ -524,6 +548,7 @@ function scene:create( event )
 	sceneGroup:insert( space )
 	sceneGroup:insert( floor)
 	sceneGroup:insert( back )
+	sceneGroup:insert( pause )
 	sceneGroup:insert( pontuacao )
 	sceneGroup:insert( buttonObjetivo2 )
 	sceneGroup:insert( buttonObjetivo1 )
@@ -534,47 +559,46 @@ function scene:create( event )
 end
 
 function scene:show( event )
-	--print("leve1:show()")
+	--print("level1:show()")
 	local sceneGroup = self.view
 	local phase = event.phase
 	
 	if phase == "will" then
-		print("leve1:show():will")
+		print("level1:show():will")
 		-- Called when the scene is still off screen and is about to move on screen
 	elseif phase == "did" then
-		print("leve1:show():did")
+		print("level1:show():did")
 		-- Called when the scene is now on screen
 		-- 
 		-- INSERT code here to make the scene come alive
 		-- e.g. start timers, begin animation, play audio, etc.
-		physics.start()
-		audio.play( music, { loops = -1 })
+		--physics.start()
 	end
 end
 
 function scene:hide( event )
-	--print("leve1:hide()")
+	--print("level1:hide()")
 	local sceneGroup = self.view
 	
 	local phase = event.phase
 	
 	if event.phase == "will" then
-		print("leve1:hide():will")
+		print("level1:hide():will")
 		-- Called when the scene is on screen and is about to move off screen
 		--
 		-- INSERT code here to pause the scene
 		-- e.g. stop timers, stop animation, unload sounds, etc.)
-		physics.stop()
-		audio.stop()
+		--physics.stop()
+		--audio.stop()
 	elseif phase == "did" then
-		print("leve1:hide():did")
+		print("level1:hide():did")
 		-- Called when the scene is now off screen
 	end
 	
 end
 
 function scene:destroy( event )
-	print("leve1:destroy()")
+	print("level1:destroy()")
 
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	-- 
